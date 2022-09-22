@@ -2,7 +2,7 @@ use crate::matcher::{PeriodMatcher, QuoteMatcher, WordMatcher};
 use crate::segmenter::JaSegmenter;
 
 #[derive(Default)]
-pub struct SegmenterBuilder {
+pub struct JaSegmenterBuilder {
     in_periods: Vec<String>,
     ex_periods: Vec<String>,
     opens: Vec<String>,
@@ -10,7 +10,7 @@ pub struct SegmenterBuilder {
     words: Vec<String>,
 }
 
-impl SegmenterBuilder {
+impl JaSegmenterBuilder {
     pub fn new() -> Self {
         Self::default()
     }
@@ -39,17 +39,13 @@ impl SegmenterBuilder {
         self
     }
 
-    pub fn parentheses<I, P>(mut self, parentheses: I) -> Self
+    pub fn parentheses<P, Q>(mut self, opens: P, closes: Q) -> Self
     where
-        I: IntoIterator<Item = (P, P)>,
         P: AsRef<str>,
+        Q: AsRef<str>,
     {
-        self.opens.clear();
-        self.closes.clear();
-        parentheses.into_iter().for_each(|(open, close)| {
-            self.opens.push(open.as_ref().to_string());
-            self.closes.push(close.as_ref().to_string());
-        });
+        self.opens = opens.as_ref().chars().map(|c| c.to_string()).collect();
+        self.closes = closes.as_ref().chars().map(|c| c.to_string()).collect();
         self
     }
 

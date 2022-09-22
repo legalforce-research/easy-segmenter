@@ -1,5 +1,7 @@
 pub mod builder;
 
+pub use builder::JaSegmenterBuilder;
+
 use crate::matcher::{PeriodMatcher, QuoteMatcher, WordMatcher};
 
 pub struct JaSegmenter {
@@ -46,8 +48,10 @@ impl JaSegmenter {
         let mut open_start = 0;
         for m in self.quote_matcher.iter(text) {
             if m.is_open {
+                if level == 0 {
+                    open_start = m.start;
+                }
                 level += 1;
-                open_start = m.start;
             } else if level > 0 {
                 level -= 1;
                 if level == 0 {
@@ -65,5 +69,116 @@ impl JaSegmenter {
                 detected[i] = true;
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_simple_1() {
+        let seg = JaSegmenterBuilder::new()
+            .in_periods(["。", "？", "！"])
+            .build();
+        let text = "これはペンです。それはマーカーです。";
+        let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+        let expected = vec!["これはペンです。", "それはマーカーです。"];
+        assert_eq!(sentences, expected);
+    }
+
+    #[test]
+    fn test_simple_2() {
+        let seg = JaSegmenterBuilder::new()
+            .in_periods(["。", "？", "！"])
+            .build();
+        let text = "それは何ですか？ペンですか？";
+        let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+        let expected = vec!["それは何ですか？", "ペンですか？"];
+        assert_eq!(sentences, expected);
+    }
+
+    #[test]
+    fn test_simple_3() {
+        let seg = JaSegmenterBuilder::new()
+            .in_periods(["。", "？", "！"])
+            .build();
+        let text = "良かったね！すごい！";
+        let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+        let expected = vec!["良かったね！", "すごい！"];
+        assert_eq!(sentences, expected);
+    }
+
+    #[test]
+    fn test_simple_4() {
+        let seg = JaSegmenterBuilder::new()
+            .in_periods(["。", "？", "！"])
+            .ex_periods(["\n"])
+            .build();
+        let text = "良かったね\nすごい！";
+        let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+        let expected = vec!["良かったね", "すごい！"];
+        assert_eq!(sentences, expected);
+    }
+
+    #[test]
+    fn test_simple_5() {
+        let seg = JaSegmenterBuilder::new()
+            .in_periods(["。", "？", "！"])
+            .ex_periods(["\n", "</br>"])
+            .build();
+        let text = "良かったね</br>すごい\n";
+        let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+        let expected = vec!["良かったね", "すごい"];
+        assert_eq!(sentences, expected);
+    }
+
+    #[test]
+    fn test_quote_1() {
+        let seg = JaSegmenterBuilder::new()
+            .in_periods(["。", "？", "！"])
+            .parentheses("「", "」")
+            .build();
+        let text = "私は「はい。そうです。」と答えた。";
+        let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+        let expected = vec!["私は「はい。そうです。」と答えた。"];
+        assert_eq!(sentences, expected);
+    }
+
+    #[test]
+    fn test_quote_2() {
+        let seg = JaSegmenterBuilder::new()
+            .in_periods(["。", "？", "！"])
+            .parentheses("（", "）")
+            .build();
+        let text = "私は「はい。そうです。」と答えた。";
+        let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+        let expected = vec!["私は「はい。", "そうです。", "」と答えた。"];
+        assert_eq!(sentences, expected);
+    }
+
+    #[test]
+    fn test_quote_3() {
+        let seg = JaSegmenterBuilder::new()
+            .in_periods(["。", "？", "！"])
+            .parentheses("（「", "）」")
+            .build();
+        let text = "私は「はい。そうです。（嘘だけど。）」と答えた。";
+        let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+        let expected = vec!["私は「はい。そうです。（嘘だけど。）」と答えた。"];
+        assert_eq!(sentences, expected);
+    }
+
+    #[test]
+    fn test_word_1() {
+        let seg = JaSegmenterBuilder::new()
+            .in_periods(["。", "？", "！"])
+            .parentheses("（「", "）」")
+            .words(["モーニング娘。"])
+            .build();
+        let text = "モーニング娘。の新曲。";
+        let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+        let expected = vec!["モーニング娘。の新曲。"];
+        assert_eq!(sentences, expected);
     }
 }
