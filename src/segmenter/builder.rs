@@ -13,7 +13,7 @@ pub struct JaSegmenterBuilder {
 }
 
 impl JaSegmenterBuilder {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             in_periods: vec![],
             ex_periods: vec![],

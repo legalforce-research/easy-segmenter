@@ -60,8 +60,8 @@ impl JaSegmenter {
             } else if level > 0 {
                 level -= 1;
                 if level == 0 {
-                    for i in open_start..m.end {
-                        detected[i] = true;
+                    for b in detected.iter_mut().take(m.end).skip(open_start) {
+                        *b = true;
                     }
                 }
             }
@@ -70,8 +70,8 @@ impl JaSegmenter {
 
     fn find_words(&self, text: &str, detected: &mut [bool]) {
         for m in self.word_matcher.iter(text) {
-            for i in m.start..m.end {
-                detected[i] = true;
+            for b in detected.iter_mut().take(m.end).skip(m.start) {
+                *b = true;
             }
         }
     }
