@@ -5,6 +5,8 @@ use regex::Regex;
 
 use crate::matcher::{PeriodMatcher, QuoteMatcher, WordMatcher};
 
+const DEFAULT_MAX_QUOTE_LEVEL: usize = 3;
+
 pub struct Segmenter {
     // Breakers
     period_matcher: PeriodMatcher,
@@ -12,6 +14,7 @@ pub struct Segmenter {
     quote_matcher: QuoteMatcher,
     word_matcher: WordMatcher,
     regex_matchers: Vec<Regex>,
+    max_quote_level: usize,
 }
 
 impl Segmenter {
@@ -26,6 +29,7 @@ impl Segmenter {
             quote_matcher,
             word_matcher,
             regex_matchers,
+            max_quote_level: DEFAULT_MAX_QUOTE_LEVEL,
         }
     }
 
@@ -64,11 +68,12 @@ impl Segmenter {
             if id != m.id {
                 continue; // No correspondence.
             }
-            // NOTE: Since all nested quates are processed, this algorithm does NOT run
-            // in linear time. However, this can handle errors of parent quates.
-            // But, should we use more efficient data structures, such as interval trees?
-            for b in detected.iter_mut().take(m.end).skip(start) {
-                *b = true;
+            // NOTE: Since nested quates are processed, this algorithm runs in
+            // O(nk) time, where n is text.len() and k is the max nesting level.
+            if stack.len() <= self.max_quote_level {
+                for b in detected.iter_mut().take(m.end).skip(start) {
+                    *b = true;
+                }
             }
             stack.pop();
         }
