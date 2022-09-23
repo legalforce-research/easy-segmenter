@@ -6,7 +6,9 @@ use regex::Regex;
 use crate::matcher::{PeriodMatcher, QuoteMatcher, WordMatcher};
 
 pub struct Segmenter {
+    // Breakers
     period_matcher: PeriodMatcher,
+    // Non Breakers
     quote_matcher: QuoteMatcher,
     word_matcher: WordMatcher,
     regex_matchers: Vec<Regex>,
