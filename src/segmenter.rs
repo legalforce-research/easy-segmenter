@@ -99,9 +99,7 @@ mod tests {
 
     #[test]
     fn test_simple_1() {
-        let seg = SegmenterBuilder::new()
-            .in_periods(["。", "？", "！"])
-            .build();
+        let seg = SegmenterBuilder::new().in_periods(["。"]).build();
         let text = "これはペンです。それはマーカーです。";
         let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
         let expected = vec!["これはペンです。", "それはマーカーです。"];
@@ -110,30 +108,17 @@ mod tests {
 
     #[test]
     fn test_simple_2() {
-        let seg = SegmenterBuilder::new()
-            .in_periods(["。", "？", "！"])
-            .build();
-        let text = "それは何ですか？ペンですか？";
+        let seg = SegmenterBuilder::new().in_periods(["。", "？"]).build();
+        let text = "それは何ですか？ペンです。";
         let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
-        let expected = vec!["それは何ですか？", "ペンですか？"];
-        assert_eq!(sentences, expected);
-    }
-
-    #[test]
-    fn test_simple_3() {
-        let seg = SegmenterBuilder::new()
-            .in_periods(["。", "？", "！"])
-            .build();
-        let text = "良かったね！すごい！";
-        let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
-        let expected = vec!["良かったね！", "すごい！"];
+        let expected = vec!["それは何ですか？", "ペンです。"];
         assert_eq!(sentences, expected);
     }
 
     #[test]
     fn test_simple_4() {
         let seg = SegmenterBuilder::new()
-            .in_periods(["。", "？", "！"])
+            .in_periods(["！"])
             .ex_periods(["\n"])
             .build();
         let text = "良かったね\nすごい！";
@@ -144,10 +129,7 @@ mod tests {
 
     #[test]
     fn test_simple_5() {
-        let seg = SegmenterBuilder::new()
-            .in_periods(["。", "？", "！"])
-            .ex_periods(["\n", "</br>"])
-            .build();
+        let seg = SegmenterBuilder::new().ex_periods(["\n", "</br>"]).build();
         let text = "良かったね</br>すごい\n";
         let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
         let expected = vec!["良かったね", "すごい"];
@@ -157,7 +139,7 @@ mod tests {
     #[test]
     fn test_quote_1() {
         let seg = SegmenterBuilder::new()
-            .in_periods(["。", "？", "！"])
+            .in_periods(["。"])
             .parentheses("「", "」")
             .build();
         let text = "私は「はい。そうです。」と答えた。";
@@ -169,7 +151,7 @@ mod tests {
     #[test]
     fn test_quote_2() {
         let seg = SegmenterBuilder::new()
-            .in_periods(["。", "？", "！"])
+            .in_periods(["。"])
             .parentheses("（", "）")
             .build();
         let text = "私は「はい。そうです。」と答えた。";
@@ -181,7 +163,7 @@ mod tests {
     #[test]
     fn test_quote_3() {
         let seg = SegmenterBuilder::new()
-            .in_periods(["。", "？", "！"])
+            .in_periods(["。"])
             .parentheses("（「", "）」")
             .build();
         let text = "私は「はい。そうです。（嘘だけど。）」と答えた。";
@@ -193,8 +175,7 @@ mod tests {
     #[test]
     fn test_word_1() {
         let seg = SegmenterBuilder::new()
-            .in_periods(["。", "？", "！"])
-            .parentheses("（「", "）」")
+            .in_periods(["。"])
             .no_break_words(["モーニング娘。"])
             .build();
         let text = "モーニング娘。の新曲。";
