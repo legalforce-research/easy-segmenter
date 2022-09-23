@@ -1,18 +1,18 @@
 pub mod builder;
-pub use builder::JaSegmenterBuilder;
+pub use builder::SegmenterBuilder;
 
 use regex::Regex;
 
 use crate::matcher::{PeriodMatcher, QuoteMatcher, WordMatcher};
 
-pub struct JaSegmenter {
+pub struct Segmenter {
     period_matcher: PeriodMatcher,
     quote_matcher: QuoteMatcher,
     word_matcher: WordMatcher,
     regex_matchers: Vec<Regex>,
 }
 
-impl JaSegmenter {
+impl Segmenter {
     fn new(
         period_matcher: PeriodMatcher,
         quote_matcher: QuoteMatcher,
@@ -97,7 +97,7 @@ mod tests {
 
     #[test]
     fn test_simple_1() {
-        let seg = JaSegmenterBuilder::new()
+        let seg = SegmenterBuilder::new()
             .in_periods(["。", "？", "！"])
             .build();
         let text = "これはペンです。それはマーカーです。";
@@ -108,7 +108,7 @@ mod tests {
 
     #[test]
     fn test_simple_2() {
-        let seg = JaSegmenterBuilder::new()
+        let seg = SegmenterBuilder::new()
             .in_periods(["。", "？", "！"])
             .build();
         let text = "それは何ですか？ペンですか？";
@@ -119,7 +119,7 @@ mod tests {
 
     #[test]
     fn test_simple_3() {
-        let seg = JaSegmenterBuilder::new()
+        let seg = SegmenterBuilder::new()
             .in_periods(["。", "？", "！"])
             .build();
         let text = "良かったね！すごい！";
@@ -130,7 +130,7 @@ mod tests {
 
     #[test]
     fn test_simple_4() {
-        let seg = JaSegmenterBuilder::new()
+        let seg = SegmenterBuilder::new()
             .in_periods(["。", "？", "！"])
             .ex_periods(["\n"])
             .build();
@@ -142,7 +142,7 @@ mod tests {
 
     #[test]
     fn test_simple_5() {
-        let seg = JaSegmenterBuilder::new()
+        let seg = SegmenterBuilder::new()
             .in_periods(["。", "？", "！"])
             .ex_periods(["\n", "</br>"])
             .build();
@@ -154,7 +154,7 @@ mod tests {
 
     #[test]
     fn test_quote_1() {
-        let seg = JaSegmenterBuilder::new()
+        let seg = SegmenterBuilder::new()
             .in_periods(["。", "？", "！"])
             .parentheses("「", "」")
             .build();
@@ -166,7 +166,7 @@ mod tests {
 
     #[test]
     fn test_quote_2() {
-        let seg = JaSegmenterBuilder::new()
+        let seg = SegmenterBuilder::new()
             .in_periods(["。", "？", "！"])
             .parentheses("（", "）")
             .build();
@@ -178,7 +178,7 @@ mod tests {
 
     #[test]
     fn test_quote_3() {
-        let seg = JaSegmenterBuilder::new()
+        let seg = SegmenterBuilder::new()
             .in_periods(["。", "？", "！"])
             .parentheses("（「", "）」")
             .build();
@@ -190,7 +190,7 @@ mod tests {
 
     #[test]
     fn test_word_1() {
-        let seg = JaSegmenterBuilder::new()
+        let seg = SegmenterBuilder::new()
             .in_periods(["。", "？", "！"])
             .parentheses("（「", "）」")
             .no_break_words(["モーニング娘。"])
@@ -203,7 +203,7 @@ mod tests {
 
     #[test]
     fn test_regex_1() {
-        let seg = JaSegmenterBuilder::new()
+        let seg = SegmenterBuilder::new()
             .in_periods(["．"])
             .no_break_regex(Regex::new(r"\d(．)\d").unwrap())
             .build();
@@ -215,7 +215,7 @@ mod tests {
 
     #[test]
     fn test_regex_2() {
-        let seg = JaSegmenterBuilder::new()
+        let seg = SegmenterBuilder::new()
             .in_periods(["。"])
             .no_break_regex(Regex::new(r"(。{2,})。").unwrap())
             .build();

@@ -1,9 +1,9 @@
 use regex::Regex;
 
 use crate::matcher::{PeriodMatcher, QuoteMatcher, WordMatcher};
-use crate::segmenter::JaSegmenter;
+use crate::segmenter::Segmenter;
 
-pub struct JaSegmenterBuilder {
+pub struct SegmenterBuilder {
     in_periods: Vec<String>,
     ex_periods: Vec<String>,
     opens: Vec<String>,
@@ -12,7 +12,7 @@ pub struct JaSegmenterBuilder {
     regexes: Vec<Regex>,
 }
 
-impl JaSegmenterBuilder {
+impl SegmenterBuilder {
     pub const fn new() -> Self {
         Self {
             in_periods: vec![],
@@ -83,10 +83,10 @@ impl JaSegmenterBuilder {
         self
     }
 
-    pub fn build(self) -> JaSegmenter {
+    pub fn build(self) -> Segmenter {
         let period_matcher = PeriodMatcher::new(&self.in_periods, &self.ex_periods);
         let quote_matcher = QuoteMatcher::new(&self.opens, &self.closes);
         let word_matcher = WordMatcher::new(&self.words);
-        JaSegmenter::new(period_matcher, quote_matcher, word_matcher, self.regexes)
+        Segmenter::new(period_matcher, quote_matcher, word_matcher, self.regexes)
     }
 }
