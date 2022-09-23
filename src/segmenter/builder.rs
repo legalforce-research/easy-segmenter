@@ -6,8 +6,7 @@ use crate::segmenter::Segmenter;
 pub struct SegmenterBuilder {
     in_periods: Vec<String>,
     ex_periods: Vec<String>,
-    opens: Vec<String>,
-    closes: Vec<String>,
+    parentheses: Vec<(char, char)>,
     words: Vec<String>,
     regexes: Vec<Regex>,
 }
@@ -17,8 +16,7 @@ impl SegmenterBuilder {
         Self {
             in_periods: vec![],
             ex_periods: vec![],
-            opens: vec![],
-            closes: vec![],
+            parentheses: vec![],
             words: vec![],
             regexes: vec![],
         }
@@ -48,21 +46,13 @@ impl SegmenterBuilder {
         self
     }
 
-    pub fn parentheses<P, Q>(mut self, opens: P, closes: Q) -> Self
+    pub fn parentheses<I>(mut self, parentheses: I) -> Self
     where
-        P: AsRef<str>,
-        Q: AsRef<str>,
+        I: IntoIterator<Item = (char, char)>,
     {
-        opens
-            .as_ref()
-            .chars()
-            .map(|c| c.to_string())
-            .for_each(|c| self.opens.push(c));
-        closes
-            .as_ref()
-            .chars()
-            .map(|c| c.to_string())
-            .for_each(|c| self.closes.push(c));
+        parentheses
+            .into_iter()
+            .for_each(|p| self.parentheses.push(p));
         self
     }
 
@@ -85,7 +75,7 @@ impl SegmenterBuilder {
 
     pub fn build(self) -> Segmenter {
         let period_matcher = PeriodMatcher::new(&self.in_periods, &self.ex_periods);
-        let quote_matcher = QuoteMatcher::new(&self.opens, &self.closes);
+        let quote_matcher = QuoteMatcher::new(&self.parentheses);
         let word_matcher = WordMatcher::new(&self.words);
         Segmenter::new(period_matcher, quote_matcher, word_matcher, self.regexes)
     }

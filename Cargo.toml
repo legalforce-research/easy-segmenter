@@ -7,4 +7,5 @@ edition = "2021"
 
 [dependencies]
 aho-corasick = "0.7"
+hashbrown = "0.12.3"
 regex = "1"

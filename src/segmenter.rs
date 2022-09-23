@@ -51,22 +51,25 @@ impl Segmenter {
     }
 
     fn find_quotes(&self, text: &str, detected: &mut [bool]) {
-        let mut level = 0;
-        let mut open_start = 0;
+        let mut stack = vec![];
         for m in self.quote_matcher.iter(text) {
             if m.is_open {
-                if level == 0 {
-                    open_start = m.start;
-                }
-                level += 1;
-            } else if level > 0 {
-                level -= 1;
-                if level == 0 {
-                    for b in detected.iter_mut().take(m.end).skip(open_start) {
-                        *b = true;
-                    }
-                }
+                stack.push((m.start, m.id));
+                continue;
             }
+            if stack.is_empty() {
+                continue;
+            }
+            let (start, id) = stack.last().cloned().unwrap();
+            if id != m.id {
+                continue; // No correspondence.
+            }
+            // NOTE: Since all nested quates are processed, this algorithm does NOT run
+            // in linear time. However, this can handle errors of parent quates.
+            for b in detected.iter_mut().take(m.end).skip(start) {
+                *b = true;
+            }
+            stack.pop();
         }
     }
 
@@ -140,7 +143,7 @@ mod tests {
     fn test_quote_1() {
         let seg = SegmenterBuilder::new()
             .in_periods(["。"])
-            .parentheses("「", "」")
+            .parentheses([('「', '」')])
             .build();
         let text = "私は「はい。そうです。」と答えた。";
         let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
@@ -152,7 +155,7 @@ mod tests {
     fn test_quote_2() {
         let seg = SegmenterBuilder::new()
             .in_periods(["。"])
-            .parentheses("（", "）")
+            .parentheses([('（', '）')])
             .build();
         let text = "私は「はい。そうです。」と答えた。";
         let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
@@ -164,11 +167,23 @@ mod tests {
     fn test_quote_3() {
         let seg = SegmenterBuilder::new()
             .in_periods(["。"])
-            .parentheses("（「", "）」")
+            .parentheses([('「', '」'), ('（', '）')])
             .build();
         let text = "私は「はい。そうです。（嘘だけど。）」と答えた。";
         let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
         let expected = vec!["私は「はい。そうです。（嘘だけど。）」と答えた。"];
+        assert_eq!(sentences, expected);
+    }
+
+    #[test]
+    fn test_quote_4() {
+        let seg = SegmenterBuilder::new()
+            .in_periods(["。"])
+            .parentheses([('「', '」'), ('（', '）')])
+            .build();
+        let text = "私は「はい。そうです。（嘘だけど。）と答えた。";
+        let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+        let expected = vec!["私は「はい。", "そうです。", "（嘘だけど。）と答えた。"];
         assert_eq!(sentences, expected);
     }
 

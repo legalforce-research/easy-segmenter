@@ -1,4 +1,5 @@
 use aho_corasick::AhoCorasick;
+use hashbrown::HashMap;
 
 pub struct PeriodMatch {
     pub start: usize,
@@ -46,43 +47,47 @@ impl PeriodMatcher {
 pub struct QuoteMatch {
     pub start: usize,
     pub end: usize,
+    pub id: usize,
     pub is_open: bool,
 }
 
 pub struct QuoteMatcher {
-    pma: AhoCorasick,
-    num_opens: usize,
+    map: HashMap<char, usize>,
 }
 
 impl QuoteMatcher {
-    pub fn new<P>(opens: &[P], closes: &[P]) -> Self
-    where
-        P: AsRef<str>,
-    {
-        let mut patterns = vec![];
-        opens
-            .iter()
-            .map(|p| p.as_ref())
-            .for_each(|p| patterns.push(p));
-        closes
-            .iter()
-            .map(|p| p.as_ref())
-            .for_each(|p| patterns.push(p));
-        let pma = AhoCorasick::new_auto_configured(&patterns);
-        Self {
-            pma,
-            num_opens: opens.len(),
+    pub fn new(parentheses: &[(char, char)]) -> Self {
+        let mut map = HashMap::new();
+        for (i, &(p, q)) in parentheses.iter().enumerate() {
+            if map.insert(p, i * 2).is_some() {
+                panic!("{p} has been already registered.");
+            }
+            if map.insert(q, i * 2 + 1).is_some() {
+                panic!("{q} has been already registered.");
+            }
         }
+        Self { map }
     }
 
     pub fn iter<'a>(&'a self, text: &'a str) -> impl Iterator<Item = QuoteMatch> + 'a {
-        self.pma
-            .find_overlapping_iter(text)
-            .map(move |m| QuoteMatch {
-                start: m.start(),
-                end: m.end(),
-                is_open: m.pattern() < self.num_opens,
-            })
+        let mut end = 0;
+        text.chars().filter_map(move |c| {
+            let len = c.len_utf8();
+            let start = end;
+            end += len;
+            if let Some(v) = self.map.get(&c).cloned() {
+                let id = v / 2;
+                let is_open = v % 2 == 0;
+                Some(QuoteMatch {
+                    start,
+                    end,
+                    id,
+                    is_open,
+                })
+            } else {
+                None
+            }
+        })
     }
 }
 
