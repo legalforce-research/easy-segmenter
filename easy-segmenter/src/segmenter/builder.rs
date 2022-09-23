@@ -3,7 +3,7 @@ use regex::Regex;
 use crate::matcher::{PeriodMatcher, QuoteMatcher, WordMatcher};
 use crate::segmenter::Segmenter;
 
-/// Builder of [`Segmenter`].
+/// Builder of [`Segmenter`] to define segmentation rules.
 pub struct SegmenterBuilder {
     in_periods: Vec<String>,
     ex_periods: Vec<String>,
@@ -24,7 +24,15 @@ impl SegmenterBuilder {
         }
     }
 
-    /// Defines periods for breaking segments.
+    /// Compiles the segmenter.
+    pub fn build(self) -> Segmenter {
+        let period_matcher = PeriodMatcher::new(&self.in_periods, &self.ex_periods);
+        let quote_matcher = QuoteMatcher::new(&self.parentheses);
+        let word_matcher = WordMatcher::new(&self.words);
+        Segmenter::new(period_matcher, quote_matcher, word_matcher, self.regexes)
+    }
+
+    /// Adds periods that break texts and are included in resulting sentences.
     ///
     /// # Examples
     ///
@@ -33,9 +41,9 @@ impl SegmenterBuilder {
     ///
     /// let seg = SegmenterBuilder::new().in_periods(["。", "？"]).build();
     /// let text = "それは何ですか？ペンです。";
-    /// let segments: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+    /// let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
     /// let expected = vec!["それは何ですか？", "ペンです。"];
-    /// assert_eq!(segments, expected);
+    /// assert_eq!(sentences, expected);
     /// ```
     pub fn in_periods<I, P>(mut self, periods: I) -> Self
     where
@@ -49,7 +57,7 @@ impl SegmenterBuilder {
         self
     }
 
-    /// Defines periods for breaking segments.
+    /// Adds periods that break texts and are excluded in resulting sentences.
     ///
     /// # Examples
     ///
@@ -58,9 +66,9 @@ impl SegmenterBuilder {
     ///
     /// let seg = SegmenterBuilder::new().ex_periods(["\n"]).build();
     /// let text = "これはペンです\nそれはマーカーです\n";
-    /// let segments: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+    /// let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
     /// let expected = vec!["これはペンです", "それはマーカーです"];
-    /// assert_eq!(segments, expected);
+    /// assert_eq!(sentences, expected);
     /// ```
     pub fn ex_periods<I, P>(mut self, periods: I) -> Self
     where
@@ -74,7 +82,8 @@ impl SegmenterBuilder {
         self
     }
 
-    /// Defines periods for breaking segments.
+    /// Adds parentheses to specify quotations.
+    /// Sentences within a quotation will not be broken.
     ///
     /// # Examples
     ///
@@ -86,9 +95,9 @@ impl SegmenterBuilder {
     ///     .parentheses([('「', '」')])
     ///     .build();
     /// let text = "私は「はい。そうです。」と答えた。";
-    /// let segments: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+    /// let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
     /// let expected = vec!["私は「はい。そうです。」と答えた。"];
-    /// assert_eq!(segments, expected);
+    /// assert_eq!(sentences, expected);
     /// ```
     pub fn parentheses<I>(mut self, parentheses: I) -> Self
     where
@@ -100,7 +109,7 @@ impl SegmenterBuilder {
         self
     }
 
-    /// Defines periods for breaking segments.
+    /// Adds words that should not be broken.
     ///
     /// # Examples
     ///
@@ -112,9 +121,9 @@ impl SegmenterBuilder {
     ///     .no_break_words(["モーニング娘。"])
     ///     .build();
     /// let text = "モーニング娘。の新曲";
-    /// let segments: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+    /// let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
     /// let expected = vec!["モーニング娘。の新曲"];
-    /// assert_eq!(segments, expected);
+    /// assert_eq!(sentences, expected);
     /// ```
     pub fn no_break_words<I, P>(mut self, words: I) -> Self
     where
@@ -128,7 +137,11 @@ impl SegmenterBuilder {
         self
     }
 
-    /// Defines periods for breaking segments.
+    /// Adds regex patterns that should not be broken.
+    /// Captured patterns will not be broken.
+    ///
+    /// Regular expressions are powerful, but complicated ones can slow down segmentation.
+    /// Consider using [`Self::no_break_words`] first to solve your problem.
     ///
     /// # Examples
     ///
@@ -141,19 +154,12 @@ impl SegmenterBuilder {
     ///     .no_break_regex(Regex::new(r"\d(．)\d").unwrap())
     ///     .build();
     /// let text = "３．１４１５９２";
-    /// let segments: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+    /// let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
     /// let expected = vec!["３．１４１５９２"];
-    /// assert_eq!(segments, expected);
+    /// assert_eq!(sentences, expected);
     /// ```
     pub fn no_break_regex(mut self, regex: Regex) -> Self {
         self.regexes.push(regex);
         self
-    }
-
-    pub fn build(self) -> Segmenter {
-        let period_matcher = PeriodMatcher::new(&self.in_periods, &self.ex_periods);
-        let quote_matcher = QuoteMatcher::new(&self.parentheses);
-        let word_matcher = WordMatcher::new(&self.words);
-        Segmenter::new(period_matcher, quote_matcher, word_matcher, self.regexes)
     }
 }

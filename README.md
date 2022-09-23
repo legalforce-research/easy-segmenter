@@ -1,2 +1,3 @@
 # easy-segmenter
-Customizable and fast sentence segmenter
+
+Customizable and fast, but easy-to-use, sentence segmenter.

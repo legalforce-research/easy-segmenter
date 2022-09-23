@@ -7,6 +7,7 @@ use crate::matcher::{PeriodMatcher, QuoteMatcher, WordMatcher};
 
 const DEFAULT_MAX_QUOTE_LEVEL: usize = 3;
 
+/// Simple rule-based segmenter.
 pub struct Segmenter {
     // Breakers
     period_matcher: PeriodMatcher,
@@ -33,8 +34,11 @@ impl Segmenter {
         }
     }
 
+    /// Segments an input text into sentences, returning byte-position ranges.
     pub fn segment<'a>(&'a self, text: &'a str) -> impl Iterator<Item = (usize, usize)> + 'a {
         let mut no_break = vec![false; text.len()];
+
+        // TODO: Parallelization
         self.find_quotes(text, &mut no_break);
         self.find_words(text, &mut no_break);
         self.find_regex(text, &mut no_break);
@@ -120,18 +124,18 @@ mod tests {
     fn test_simple_1() {
         let seg = SegmenterBuilder::new().in_periods(["。"]).build();
         let text = "これはペンです。それはマーカーです。";
-        let segments: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+        let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
         let expected = vec!["これはペンです。", "それはマーカーです。"];
-        assert_eq!(segments, expected);
+        assert_eq!(sentences, expected);
     }
 
     #[test]
     fn test_simple_2() {
         let seg = SegmenterBuilder::new().in_periods(["。", "？"]).build();
         let text = "それは何ですか？ペンです。";
-        let segments: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+        let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
         let expected = vec!["それは何ですか？", "ペンです。"];
-        assert_eq!(segments, expected);
+        assert_eq!(sentences, expected);
     }
 
     #[test]
@@ -141,18 +145,18 @@ mod tests {
             .ex_periods(["\n"])
             .build();
         let text = "良かったね\nすごい！";
-        let segments: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+        let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
         let expected = vec!["良かったね", "すごい！"];
-        assert_eq!(segments, expected);
+        assert_eq!(sentences, expected);
     }
 
     #[test]
     fn test_simple_4() {
         let seg = SegmenterBuilder::new().ex_periods(["\n", "</br>"]).build();
         let text = "良かったね</br>すごい\n";
-        let segments: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+        let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
         let expected = vec!["良かったね", "すごい"];
-        assert_eq!(segments, expected);
+        assert_eq!(sentences, expected);
     }
 
     #[test]
@@ -162,9 +166,9 @@ mod tests {
             .parentheses([('「', '」')])
             .build();
         let text = "私は「はい。そうです。」と答えた。";
-        let segments: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+        let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
         let expected = vec!["私は「はい。そうです。」と答えた。"];
-        assert_eq!(segments, expected);
+        assert_eq!(sentences, expected);
     }
 
     #[test]
@@ -174,9 +178,9 @@ mod tests {
             .parentheses([('（', '）')])
             .build();
         let text = "私は「はい。そうです。」と答えた。";
-        let segments: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+        let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
         let expected = vec!["私は「はい。", "そうです。", "」と答えた。"];
-        assert_eq!(segments, expected);
+        assert_eq!(sentences, expected);
     }
 
     #[test]
@@ -186,9 +190,9 @@ mod tests {
             .parentheses([('「', '」'), ('（', '）')])
             .build();
         let text = "私は「はい。そうです。（嘘だけど。）」と答えた。";
-        let segments: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+        let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
         let expected = vec!["私は「はい。そうです。（嘘だけど。）」と答えた。"];
-        assert_eq!(segments, expected);
+        assert_eq!(sentences, expected);
     }
 
     #[test]
@@ -198,9 +202,9 @@ mod tests {
             .parentheses([('「', '」'), ('（', '）')])
             .build();
         let text = "私は「はい。そうです。（嘘だけど。）と答えた。";
-        let segments: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+        let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
         let expected = vec!["私は「はい。", "そうです。", "（嘘だけど。）と答えた。"];
-        assert_eq!(segments, expected);
+        assert_eq!(sentences, expected);
     }
 
     #[test]
@@ -210,9 +214,9 @@ mod tests {
             .no_break_words(["モーニング娘。"])
             .build();
         let text = "モーニング娘。の新曲。";
-        let segments: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+        let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
         let expected = vec!["モーニング娘。の新曲。"];
-        assert_eq!(segments, expected);
+        assert_eq!(sentences, expected);
     }
 
     #[test]
@@ -222,9 +226,9 @@ mod tests {
             .no_break_regex(Regex::new(r"\d(．)\d").unwrap())
             .build();
         let text = "３．１４１５９２．円周率です．";
-        let segments: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+        let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
         let expected = vec!["３．１４１５９２．", "円周率です．"];
-        assert_eq!(segments, expected);
+        assert_eq!(sentences, expected);
     }
 
     #[test]
@@ -234,25 +238,36 @@ mod tests {
             .no_break_regex(Regex::new(r"(。{2,})。").unwrap())
             .build();
         let text = "はぁ。。。疲れた。。";
-        let segments: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+        let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
         let expected = vec!["はぁ。。。", "疲れた。", "。"];
-        assert_eq!(segments, expected);
+        assert_eq!(sentences, expected);
     }
 
     #[test]
     fn test_no_last_period() {
         let seg = SegmenterBuilder::new().in_periods(["。"]).build();
         let text = "これはペンです。それはマーカーです";
-        let segments: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+        let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
         let expected = vec!["これはペンです。", "それはマーカーです"];
-        assert_eq!(segments, expected);
+        assert_eq!(sentences, expected);
     }
 
     #[test]
     fn test_empty_text() {
         let seg = SegmenterBuilder::new().in_periods(["。"]).build();
         let text = "";
-        let segments: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
-        assert!(segments.is_empty());
+        let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+        assert!(sentences.is_empty());
+    }
+
+    #[test]
+    fn test_basic() {
+        let seg = SegmenterBuilder::new()
+            .in_periods(crate::basic::in_periods())
+            .build();
+        let text = "これはペンです。それはマーカーです。";
+        let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+        let expected = vec!["これはペンです。", "それはマーカーです。"];
+        assert_eq!(sentences, expected);
     }
 }

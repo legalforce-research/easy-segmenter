@@ -1,4 +1,4 @@
-use aho_corasick::AhoCorasick;
+use aho_corasick::{AhoCorasick, AhoCorasickBuilder, MatchKind};
 use hashbrown::HashMap;
 
 pub struct PeriodMatch {
@@ -26,7 +26,10 @@ impl PeriodMatcher {
             .iter()
             .map(|p| p.as_ref())
             .for_each(|p| patterns.push(p));
-        let pma = AhoCorasick::new_auto_configured(&patterns);
+        let pma = AhoCorasickBuilder::new()
+            .auto_configure(&patterns)
+            .match_kind(MatchKind::LeftmostLongest)
+            .build(&patterns);
         Self {
             pma,
             num_in_periods: in_periods.len(),
@@ -35,7 +38,7 @@ impl PeriodMatcher {
 
     pub fn iter<'a>(&'a self, text: &'a str) -> impl Iterator<Item = PeriodMatch> + 'a {
         self.pma
-            .find_overlapping_iter(text)
+            .find_iter(text)
             .map(move |m| PeriodMatch {
                 start: m.start(),
                 end: m.end(),
