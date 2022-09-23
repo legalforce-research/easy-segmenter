@@ -41,6 +41,13 @@ impl PeriodMatcher {
                 end: m.end(),
                 is_in_period: m.pattern() < self.num_in_periods,
             })
+            // Always returns an imaginary terminator to address the case that
+            // the last character does not have any period.
+            .chain([PeriodMatch {
+                start: text.len(),
+                end: text.len(),
+                is_in_period: false,
+            }])
     }
 }
 
