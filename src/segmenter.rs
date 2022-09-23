@@ -78,9 +78,13 @@ impl JaSegmenter {
 
     fn find_regex(&self, text: &str, detected: &mut [bool]) {
         for re in &self.regex_matchers {
-            for m in re.find_iter(text) {
-                for i in m.range() {
-                    detected[i] = true;
+            for cap in re.captures_iter(text) {
+                for idx in 1..cap.len() {
+                    if let Some(m) = cap.get(idx) {
+                        for i in m.range() {
+                            detected[i] = true;
+                        }
+                    }
                 }
             }
         }
@@ -194,6 +198,30 @@ mod tests {
         let text = "モーニング娘。の新曲。";
         let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
         let expected = vec!["モーニング娘。の新曲。"];
+        assert_eq!(sentences, expected);
+    }
+
+    #[test]
+    fn test_regex_1() {
+        let seg = JaSegmenterBuilder::new()
+            .in_periods(["．"])
+            .no_break_regex(Regex::new(r"\d(．)\d").unwrap())
+            .build();
+        let text = "３．１４１５９２．円周率です．";
+        let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+        let expected = vec!["３．１４１５９２．", "円周率です．"];
+        assert_eq!(sentences, expected);
+    }
+
+    #[test]
+    fn test_regex_2() {
+        let seg = JaSegmenterBuilder::new()
+            .in_periods(["。"])
+            .no_break_regex(Regex::new(r"(。{2,})。").unwrap())
+            .build();
+        let text = "はぁ。。。疲れた。。";
+        let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+        let expected = vec!["はぁ。。。", "疲れた。", "。"];
         assert_eq!(sentences, expected);
     }
 }
