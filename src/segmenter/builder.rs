@@ -1,18 +1,27 @@
+use regex::Regex;
+
 use crate::matcher::{PeriodMatcher, QuoteMatcher, WordMatcher};
 use crate::segmenter::JaSegmenter;
 
-#[derive(Default)]
 pub struct JaSegmenterBuilder {
     in_periods: Vec<String>,
     ex_periods: Vec<String>,
     opens: Vec<String>,
     closes: Vec<String>,
     words: Vec<String>,
+    regexes: Vec<Regex>,
 }
 
 impl JaSegmenterBuilder {
     pub fn new() -> Self {
-        Self::default()
+        Self {
+            in_periods: vec![],
+            ex_periods: vec![],
+            opens: vec![],
+            closes: vec![],
+            words: vec![],
+            regexes: vec![],
+        }
     }
 
     pub fn in_periods<I, P>(mut self, periods: I) -> Self
@@ -20,10 +29,10 @@ impl JaSegmenterBuilder {
         I: IntoIterator<Item = P>,
         P: AsRef<str>,
     {
-        self.in_periods = periods
+        periods
             .into_iter()
             .map(|p| p.as_ref().to_string())
-            .collect();
+            .for_each(|p| self.in_periods.push(p));
         self
     }
 
@@ -32,10 +41,10 @@ impl JaSegmenterBuilder {
         I: IntoIterator<Item = P>,
         P: AsRef<str>,
     {
-        self.ex_periods = periods
+        periods
             .into_iter()
             .map(|p| p.as_ref().to_string())
-            .collect();
+            .for_each(|p| self.ex_periods.push(p));
         self
     }
 
@@ -44,17 +53,33 @@ impl JaSegmenterBuilder {
         P: AsRef<str>,
         Q: AsRef<str>,
     {
-        self.opens = opens.as_ref().chars().map(|c| c.to_string()).collect();
-        self.closes = closes.as_ref().chars().map(|c| c.to_string()).collect();
+        opens
+            .as_ref()
+            .chars()
+            .map(|c| c.to_string())
+            .for_each(|c| self.opens.push(c));
+        closes
+            .as_ref()
+            .chars()
+            .map(|c| c.to_string())
+            .for_each(|c| self.closes.push(c));
         self
     }
 
-    pub fn words<I, P>(mut self, words: I) -> Self
+    pub fn no_break_words<I, P>(mut self, words: I) -> Self
     where
         I: IntoIterator<Item = P>,
         P: AsRef<str>,
     {
-        self.words = words.into_iter().map(|p| p.as_ref().to_string()).collect();
+        words
+            .into_iter()
+            .map(|w| w.as_ref().to_string())
+            .for_each(|w| self.words.push(w));
+        self
+    }
+
+    pub fn no_break_regex(mut self, regex: Regex) -> Self {
+        self.regexes.push(regex);
         self
     }
 
@@ -62,6 +87,6 @@ impl JaSegmenterBuilder {
         let period_matcher = PeriodMatcher::new(&self.in_periods, &self.ex_periods);
         let quote_matcher = QuoteMatcher::new(&self.opens, &self.closes);
         let word_matcher = WordMatcher::new(&self.words);
-        JaSegmenter::new(period_matcher, quote_matcher, word_matcher)
+        JaSegmenter::new(period_matcher, quote_matcher, word_matcher, self.regexes)
     }
 }
