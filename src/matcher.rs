@@ -75,18 +75,16 @@ impl QuoteMatcher {
             let len = c.len_utf8();
             let start = end;
             end += len;
-            if let Some(v) = self.map.get(&c).cloned() {
+            self.map.get(&c).cloned().map(|v| {
                 let id = v / 2;
                 let is_open = v % 2 == 0;
-                Some(QuoteMatch {
+                QuoteMatch {
                     start,
                     end,
                     id,
                     is_open,
-                })
-            } else {
-                None
-            }
+                }
+            })
         })
     }
 }
