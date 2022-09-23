@@ -3,6 +3,7 @@ pub use builder::SegmenterBuilder;
 
 use regex::Regex;
 
+use crate::basic;
 use crate::matcher::{PeriodMatcher, QuoteMatcher, WordMatcher};
 
 const DEFAULT_MAX_QUOTE_LEVEL: usize = 3;
@@ -32,6 +33,16 @@ impl Segmenter {
             regex_matchers,
             max_quote_level: DEFAULT_MAX_QUOTE_LEVEL,
         }
+    }
+
+    /// Creates an instance with basic segmentation rules.
+    pub fn basic_configure() -> Self {
+        SegmenterBuilder::new()
+            .in_periods(basic::in_periods())
+            .ex_periods(basic::ex_periods())
+            .parentheses(basic::parentheses())
+            .no_break_regex(basic::decimal_point())
+            .build()
     }
 
     /// Segments an input text into sentences, returning byte-position ranges.
