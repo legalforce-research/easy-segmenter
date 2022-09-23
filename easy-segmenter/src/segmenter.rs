@@ -66,6 +66,7 @@ impl Segmenter {
             }
             // NOTE: Since all nested quates are processed, this algorithm does NOT run
             // in linear time. However, this can handle errors of parent quates.
+            // But, should we use more efficient data structures, such as interval trees?
             for b in detected.iter_mut().take(m.end).skip(start) {
                 *b = true;
             }
