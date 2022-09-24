@@ -33,8 +33,8 @@ pub struct Segmenter {
     // Breakers
     period_matcher: PeriodMatcher,
     // Non Breakers
-    quote_matcher: QuoteMatcher,
-    word_matcher: WordMatcher,
+    quote_matcher: Option<QuoteMatcher>,
+    word_matcher: Option<WordMatcher>,
     regex_matchers: Vec<Regex>,
     max_quote_level: usize,
 }
@@ -42,8 +42,8 @@ pub struct Segmenter {
 impl Segmenter {
     fn new(
         period_matcher: PeriodMatcher,
-        quote_matcher: QuoteMatcher,
-        word_matcher: WordMatcher,
+        quote_matcher: Option<QuoteMatcher>,
+        word_matcher: Option<WordMatcher>,
         regex_matchers: Vec<Regex>,
         max_quote_level: usize,
     ) -> Self {
@@ -101,34 +101,38 @@ impl Segmenter {
     }
 
     fn find_quotes(&self, text: &str, detected: &mut [bool]) {
-        let mut stack = vec![];
-        for m in self.quote_matcher.iter(text) {
-            if m.is_open {
-                stack.push((m.start, m.id));
-                continue;
-            }
-            if stack.is_empty() {
-                continue;
-            }
-            let (start, id) = stack.last().cloned().unwrap();
-            if id != m.id {
-                continue; // No correspondence.
-            }
-            // NOTE: Since nested quates are processed, this algorithm runs in
-            // O(nk) time, where n is text.len() and k is the max nesting level.
-            if stack.len() <= self.max_quote_level {
-                for b in detected.iter_mut().take(m.end).skip(start) {
-                    *b = true;
+        if let Some(quote_matcher) = self.quote_matcher.as_ref() {
+            let mut stack = vec![];
+            for m in quote_matcher.iter(text) {
+                if m.is_open {
+                    stack.push((m.start, m.id));
+                    continue;
                 }
+                if stack.is_empty() {
+                    continue;
+                }
+                let (start, id) = stack.last().cloned().unwrap();
+                if id != m.id {
+                    continue; // No correspondence.
+                }
+                // NOTE: Since nested quates are processed, this algorithm runs in
+                // O(nk) time, where n is text.len() and k is the max nesting level.
+                if stack.len() <= self.max_quote_level {
+                    for b in detected.iter_mut().take(m.end).skip(start) {
+                        *b = true;
+                    }
+                }
+                stack.pop();
             }
-            stack.pop();
         }
     }
 
     fn find_words(&self, text: &str, detected: &mut [bool]) {
-        for m in self.word_matcher.iter(text) {
-            for b in detected.iter_mut().take(m.end).skip(m.start) {
-                *b = true;
+        if let Some(word_matcher) = self.word_matcher.as_ref() {
+            for m in word_matcher.iter(text) {
+                for b in detected.iter_mut().take(m.end).skip(m.start) {
+                    *b = true;
+                }
             }
         }
     }

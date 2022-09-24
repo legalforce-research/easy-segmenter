@@ -33,8 +33,16 @@ impl SegmenterBuilder {
     /// Compiles the segmenter.
     pub fn build(self) -> Segmenter {
         let period_matcher = PeriodMatcher::new(&self.in_periods, &self.ex_periods);
-        let quote_matcher = QuoteMatcher::new(&self.parentheses);
-        let word_matcher = WordMatcher::new(&self.words);
+        let quote_matcher = if self.parentheses.is_empty() {
+            None
+        } else {
+            Some(QuoteMatcher::new(&self.parentheses))
+        };
+        let word_matcher = if self.words.is_empty() {
+            None
+        } else {
+            Some(WordMatcher::new(&self.words))
+        };
         Segmenter::new(
             period_matcher,
             quote_matcher,
