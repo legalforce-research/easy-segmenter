@@ -19,7 +19,7 @@ const DEFAULT_MAX_QUOTE_LEVEL: usize = 3;
 /// ```rust
 /// use easy_segmenter::Segmenter;
 ///
-/// let seg = Segmenter::with_basic_configure();
+/// let seg = Segmenter::with_basic_ja_configure();
 /// let text = "円周率はいくつですか？３．１４です。なるほど、\
 ///     以前に「３の方が良いのでは？」と聞いた気がしますが\n今も３．１４なんですね";
 /// let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
@@ -58,7 +58,7 @@ impl Segmenter {
     }
 
     /// Creates an instance with basic segmentation rules.
-    pub fn with_basic_configure() -> Self {
+    pub fn with_basic_ja_configure() -> Self {
         SegmenterBuilder::new()
             .in_periods(basic::in_periods())
             .ex_periods(basic::ex_periods())

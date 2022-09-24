@@ -1,13 +1,16 @@
 # easy-segmenter
 
-Fast and customizable, but easy-to-use, rule-based sentence segmenter.
+easy-segmenter is a Rust library of fast, customizable, but easy-to-use rule-based sentence segmenter.
+
+The API is designed for Japanese, but is extensible to other languages
+through a generic framework without hardcoding segmentation rules.
 
 ## Getting started
 
 ```rust
 use easy_segmenter::Segmenter;
 
-let seg = Segmenter::with_basic_configure();
+let seg = Segmenter::with_basic_ja_configure();
 let text = "円周率はいくつですか？３．１４です。なるほど、\
     以前に「３の方が良いのでは？」と聞いた気がしますが\n今も３．１４なんですね";
 let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
