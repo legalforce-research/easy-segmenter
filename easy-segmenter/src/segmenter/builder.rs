@@ -1,3 +1,4 @@
+//! Builder of [`Segmenter`] to define segmentation rules.
 use regex::Regex;
 
 use crate::matcher::{PeriodMatcher, QuoteMatcher, WordMatcher};

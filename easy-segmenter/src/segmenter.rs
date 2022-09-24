@@ -1,3 +1,4 @@
+//! Fast and customizable, but easy-to-use, rule-based sentence segmenter.
 pub mod builder;
 pub use builder::SegmenterBuilder;
 
@@ -11,7 +12,25 @@ use crate::matcher::{PeriodMatcher, QuoteMatcher, WordMatcher};
 
 const DEFAULT_MAX_QUOTE_LEVEL: usize = 3;
 
-/// Simple rule-based segmenter.
+/// Fast and customizable, but easy-to-use, rule-based sentence segmenter.
+///
+/// # Examples
+///
+/// ```rust
+/// use easy_segmenter::Segmenter;
+///
+/// let seg = Segmenter::with_basic_configure();
+/// let text = "円周率はいくつですか？３．１４です。なるほど、\
+///     以前に「３の方が良いのでは？」と聞いた気がしますが\n今も３．１４なんですね";
+/// let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+/// let expected = vec![
+///     "円周率はいくつですか？",
+///     "３．１４です。",
+///     "なるほど、以前に「３の方が良いのでは？」と聞いた気がしますが",
+///     "今も３．１４なんですね",
+/// ];
+/// assert_eq!(sentences, expected);
+/// ```
 pub struct Segmenter {
     // Breakers
     period_matcher: PeriodMatcher,
