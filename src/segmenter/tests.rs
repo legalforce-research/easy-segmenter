@@ -156,9 +156,9 @@ fn test_regex_2() {
         .no_break_regex(Regex::new(r"(。{2,})。").unwrap())
         .build()
         .unwrap();
-    let text = "はぁ。。。疲れた。。";
+    let text = "はぁ。。。。。。疲れた。。";
     let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
-    let expected = vec!["はぁ。。。", "疲れた。", "。"];
+    let expected = vec!["はぁ。。。。。。", "疲れた。", "。"];
     assert_eq!(sentences, expected);
 }
 

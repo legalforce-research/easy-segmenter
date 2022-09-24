@@ -133,6 +133,8 @@ assert_eq!(sentences, expected);
 You can define regex patterns that should not be segmented.
 Captured patterns will not be segmented.
 
+Example 1. Handling decimal points.
+
 ```rust
 use regex::Regex;
 use easy_segmenter::SegmenterBuilder;
@@ -145,6 +147,23 @@ let seg = SegmenterBuilder::new()
 let text = "３．１４";
 let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
 let expected = vec!["３．１４"];
+assert_eq!(sentences, expected);
+```
+
+Example 2. Handling dot sequences.
+
+```rust
+use regex::Regex;
+use easy_segmenter::SegmenterBuilder;
+
+let seg = SegmenterBuilder::new()
+    .in_periods(["。"])
+    .no_break_regex(Regex::new(r"(。{2,})。").unwrap())
+    .build()
+    .unwrap();
+let text = "はぁ。。。。。疲れた。。。";
+let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+let expected = vec!["はぁ。。。。。", "疲れた。。。"];
 assert_eq!(sentences, expected);
 ```
 
