@@ -181,7 +181,7 @@ fn test_empty_text() {
 
 #[test]
 fn test_basic() {
-    let seg = Segmenter::with_basic_ja_config();
+    let seg = Segmenter::with_template_ja_config();
     let text = "円周率はいくつですか？３．１４です。なるほど、\
         以前に「３の方が良いのでは？」と聞いた気がしますが\n今も３．１４なんですね";
     let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();

@@ -7,8 +7,8 @@ mod tests;
 
 use regex::Regex;
 
-use crate::basic_ja;
 use crate::matcher::{PeriodMatcher, QuoteMatcher, WordMatcher};
+use crate::template;
 
 /// Fast and customizable, but easy-to-use, rule-based sentence segmenter.
 ///
@@ -17,7 +17,7 @@ use crate::matcher::{PeriodMatcher, QuoteMatcher, WordMatcher};
 /// ```rust
 /// use easy_segmenter::Segmenter;
 ///
-/// let seg = Segmenter::with_basic_ja_config();
+/// let seg = Segmenter::with_template_ja_config();
 /// let text = "円周率はいくつですか？３．１４です。なるほど、\
 ///     以前に「３の方が良いのでは？」と聞いた気がしますが\n今も３．１４なんですね";
 /// let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
@@ -56,13 +56,13 @@ impl Segmenter {
         }
     }
 
-    /// Creates an instance with basic segmentation rules.
-    pub fn with_basic_ja_config() -> Self {
+    /// Creates an instance with basic segmentation rules defined in [`template::ja`].
+    pub fn with_template_ja_config() -> Self {
         SegmenterBuilder::new()
-            .in_periods(basic_ja::in_periods())
-            .ex_periods(basic_ja::ex_periods())
-            .parentheses(basic_ja::parentheses())
-            .no_break_regex(basic_ja::decimal_point())
+            .in_periods(template::ja::in_periods())
+            .ex_periods(template::ja::ex_periods())
+            .parentheses(template::ja::parentheses())
+            .no_break_regex(template::ja::decimal_point())
             .build()
             .unwrap()
     }

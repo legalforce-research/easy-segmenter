@@ -8,10 +8,10 @@ use regex::Regex;
 /// # Examples
 ///
 /// ```
-/// use easy_segmenter::{basic_ja, SegmenterBuilder};
+/// use easy_segmenter::{template, SegmenterBuilder};
 ///
 /// let seg = SegmenterBuilder::new()
-///     .in_periods(basic_ja::in_periods())
+///     .in_periods(template::ja::in_periods())
 ///     .build()
 ///     .unwrap();
 /// let text = "それは何ですか？ペンです。";
@@ -30,10 +30,10 @@ pub fn in_periods() -> Vec<&'static str> {
 /// # Examples
 ///
 /// ```
-/// use easy_segmenter::{basic_ja, SegmenterBuilder};
+/// use easy_segmenter::{template, SegmenterBuilder};
 ///
 /// let seg = SegmenterBuilder::new()
-///     .ex_periods(basic_ja::ex_periods())
+///     .ex_periods(template::ja::ex_periods())
 ///     .build()
 ///     .unwrap();
 /// let text = "これはペンです\r\nそれはマーカーです\n";
@@ -52,11 +52,11 @@ pub fn ex_periods() -> Vec<&'static str> {
 /// # Examples
 ///
 /// ```
-/// use easy_segmenter::{basic_ja, SegmenterBuilder};
+/// use easy_segmenter::{template, SegmenterBuilder};
 ///
 /// let seg = SegmenterBuilder::new()
-///     .in_periods(basic_ja::in_periods())
-///     .parentheses(basic_ja::parentheses())
+///     .in_periods(template::ja::in_periods())
+///     .parentheses(template::ja::parentheses())
 ///     .build()
 ///     .unwrap();
 /// let text = "私は「はい。そうです。」と答えた。";
@@ -84,11 +84,11 @@ pub fn parentheses() -> Vec<(char, char)> {
 /// # Examples
 ///
 /// ```
-/// use easy_segmenter::{basic_ja, SegmenterBuilder};
+/// use easy_segmenter::{template, SegmenterBuilder};
 ///
 /// let seg = SegmenterBuilder::new()
 ///     .in_periods(["．"])
-///     .no_break_regex(basic_ja::decimal_point())
+///     .no_break_regex(template::ja::decimal_point())
 ///     .build()
 ///     .unwrap();
 /// let text = "三．一四";
