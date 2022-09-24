@@ -4,6 +4,20 @@ Fast and customizable, but easy-to-use, rule-based sentence segmenter.
 
 ## Getting started
 
+```rust
+let seg = Segmenter::basic_configure();
+let text = "円周率はいくつですか？３．１４です。なるほど、\
+    以前に「３の方が良いのでは？」と聞いた気がしますが\n今も３．１４なんですね";
+let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+let expected = vec![
+    "円周率はいくつですか？",
+    "３．１４です。",
+    "なるほど、以前に「３の方が良いのでは？」と聞いた気がしますが",
+    "今も３．１４なんですね",
+];
+assert_eq!(sentences, expected);
+```
+
 ## How to customize
 
 `easy_segmenter::Segmenter` does not hardcode any segmentation rules and
@@ -53,9 +67,9 @@ Itemization can be also handled.
 
 ```rust
 let seg = SegmenterBuilder::new().ex_periods(["\n", "\n・"]).build();
-let text = "買うもの\n・ご飯\n・卵\n・醤油";
+let text = "買うもの\n・ご飯\n・卵\n・醤油\n計３点";
 let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
-let expected = vec!["買うもの", "ご飯", "卵", "醤油"];
+let expected = vec!["買うもの", "ご飯", "卵", "醤油", "計３点"];
 assert_eq!(sentences, expected);
 ```
 
