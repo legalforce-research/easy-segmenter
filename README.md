@@ -10,7 +10,10 @@ through a generic framework without hardcoding segmentation rules.
 ```rust
 use easy_segmenter::Segmenter;
 
+// Creates a segmenter with basic segmentation rules.
+// See the AIP documentation for the detail.
 let seg = Segmenter::with_basic_ja_config();
+
 let text = "円周率はいくつですか？３．１４です。なるほど、\
     以前に「３の方が良いのでは？」と聞いた気がしますが\n今も３．１４なんですね";
 let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
