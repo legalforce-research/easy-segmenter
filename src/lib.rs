@@ -194,6 +194,8 @@
 //!
 //! However, easy-segmenter will be useful to remove those quotation markers in preprocessing.
 //! It can be achived by segmenting the original text with `ex_periods(["\n>> "])` and concatenating the resulting sentences.
+#![deny(missing_docs)]
+
 pub mod errors;
 pub mod segmenter;
 pub mod template;
