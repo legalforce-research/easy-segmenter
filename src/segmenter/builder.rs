@@ -195,6 +195,13 @@ impl SegmenterBuilder {
     /// let expected = vec!["３．１４"];
     /// assert_eq!(sentences, expected);
     /// ```
+    ///
+    /// # Notes
+    ///
+    /// This function takes a single regex pattern, not a sequence of those, because
+    ///  - many regex patterns should be registered as a general rule, and
+    ///  - a single regex can define multiple rules.
+    /// Nonetheless, you can register multiple patterns by repeating this function.
     pub fn no_break_regex(mut self, regex: Regex) -> Self {
         self.regexes.push(regex);
         self
