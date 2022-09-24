@@ -1,6 +1,8 @@
 use aho_corasick::{AhoCorasick, AhoCorasickBuilder, MatchKind};
 use hashbrown::HashMap;
 
+use crate::errors::{EasySegmenterError, Result};
+
 pub struct PeriodMatch {
     pub start: usize,
     pub end: usize,
@@ -66,17 +68,21 @@ pub struct QuoteMatcher {
 }
 
 impl QuoteMatcher {
-    pub fn new(parentheses: &[(char, char)]) -> Self {
+    pub fn new(parentheses: &[(char, char)]) -> Result<Self> {
         let mut map = HashMap::new();
         for (i, &(p, q)) in parentheses.iter().enumerate() {
             if map.insert(p, i * 2).is_some() {
-                panic!("{p} has been already registered.");
+                return Err(EasySegmenterError::input(format!(
+                    "{p} has been already registered. Entries must be unique."
+                )));
             }
             if map.insert(q, i * 2 + 1).is_some() {
-                panic!("{q} has been already registered.");
+                return Err(EasySegmenterError::input(format!(
+                    "{q} has been already registered. Entries must be unique."
+                )));
             }
         }
-        Self { map }
+        Ok(Self { map })
     }
 
     pub fn iter<'a>(&'a self, text: &'a str) -> impl Iterator<Item = QuoteMatch> + 'a {

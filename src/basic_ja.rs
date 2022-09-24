@@ -12,7 +12,8 @@ use regex::Regex;
 ///
 /// let seg = SegmenterBuilder::new()
 ///     .in_periods(basic_ja::in_periods())
-///     .build();
+///     .build()
+///     .unwrap();
 /// let text = "それは何ですか？ペンです。";
 /// let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
 /// let expected = vec!["それは何ですか？", "ペンです。"];
@@ -33,7 +34,8 @@ pub fn in_periods() -> Vec<&'static str> {
 ///
 /// let seg = SegmenterBuilder::new()
 ///     .ex_periods(basic_ja::ex_periods())
-///     .build();
+///     .build()
+///     .unwrap();
 /// let text = "これはペンです\r\nそれはマーカーです\n";
 /// let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
 /// let expected = vec!["これはペンです", "それはマーカーです"];
@@ -55,7 +57,8 @@ pub fn ex_periods() -> Vec<&'static str> {
 /// let seg = SegmenterBuilder::new()
 ///     .in_periods(basic_ja::in_periods())
 ///     .parentheses(basic_ja::parentheses())
-///     .build();
+///     .build()
+///     .unwrap();
 /// let text = "私は「はい。そうです。」と答えた。";
 /// let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
 /// let expected = vec!["私は「はい。そうです。」と答えた。"];
@@ -86,7 +89,8 @@ pub fn parentheses() -> Vec<(char, char)> {
 /// let seg = SegmenterBuilder::new()
 ///     .in_periods(["．"])
 ///     .no_break_regex(basic_ja::decimal_point())
-///     .build();
+///     .build()
+///     .unwrap();
 /// let text = "三．一四";
 /// let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
 /// let expected = vec!["三．一四"];

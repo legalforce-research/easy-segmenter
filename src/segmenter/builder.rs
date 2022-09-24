@@ -1,6 +1,7 @@
 //! Builder of [`Segmenter`] to define segmentation rules.
 use regex::Regex;
 
+use crate::errors::{EasySegmenterError, Result};
 use crate::matcher::{PeriodMatcher, QuoteMatcher, WordMatcher};
 use crate::segmenter::Segmenter;
 
@@ -31,25 +32,30 @@ impl SegmenterBuilder {
     }
 
     /// Compiles the segmenter.
-    pub fn build(self) -> Segmenter {
+    pub fn build(self) -> Result<Segmenter> {
+        if self.in_periods.is_empty() && self.ex_periods.is_empty() {
+            return Err(EasySegmenterError::input(
+                "Both in_ and ex_periods must not be empty.",
+            ));
+        }
         let period_matcher = PeriodMatcher::new(&self.in_periods, &self.ex_periods);
         let quote_matcher = if self.parentheses.is_empty() {
             None
         } else {
-            Some(QuoteMatcher::new(&self.parentheses))
+            Some(QuoteMatcher::new(&self.parentheses)?)
         };
         let word_matcher = if self.words.is_empty() {
             None
         } else {
             Some(WordMatcher::new(&self.words))
         };
-        Segmenter::new(
+        Ok(Segmenter::new(
             period_matcher,
             quote_matcher,
             word_matcher,
             self.regexes,
             self.max_quote_level,
-        )
+        ))
     }
 
     /// Adds periods that break texts and are included in resulting sentences.
@@ -59,7 +65,10 @@ impl SegmenterBuilder {
     /// ```
     /// use easy_segmenter::SegmenterBuilder;
     ///
-    /// let seg = SegmenterBuilder::new().in_periods(["。", "？"]).build();
+    /// let seg = SegmenterBuilder::new()
+    ///     .in_periods(["。", "？"])
+    ///     .build()
+    ///     .unwrap();
     /// let text = "それは何ですか？ペンです。";
     /// let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
     /// let expected = vec!["それは何ですか？", "ペンです。"];
@@ -84,7 +93,10 @@ impl SegmenterBuilder {
     /// ```
     /// use easy_segmenter::SegmenterBuilder;
     ///
-    /// let seg = SegmenterBuilder::new().ex_periods(["\n"]).build();
+    /// let seg = SegmenterBuilder::new()
+    ///     .ex_periods(["\n"])
+    ///     .build()
+    ///     .unwrap();
     /// let text = "これはペンです\nそれはマーカーです\n";
     /// let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
     /// let expected = vec!["これはペンです", "それはマーカーです"];
@@ -105,9 +117,7 @@ impl SegmenterBuilder {
     /// Adds parentheses to specify quotations.
     /// Sentences within a quotation will not be broken.
     ///
-    /// # Panic
-    ///
-    /// [`Self::build`] will be panic when `parentheses` has duplicate entries.
+    /// `parentheses` must not have duplicate entries.
     ///
     /// # Examples
     ///
@@ -117,7 +127,8 @@ impl SegmenterBuilder {
     /// let seg = SegmenterBuilder::new()
     ///     .in_periods(["。"])
     ///     .parentheses([('「', '」')])
-    ///     .build();
+    ///     .build()
+    ///     .unwrap();
     /// let text = "私は「はい。そうです。」と答えた。";
     /// let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
     /// let expected = vec!["私は「はい。そうです。」と答えた。"];
@@ -143,7 +154,8 @@ impl SegmenterBuilder {
     /// let seg = SegmenterBuilder::new()
     ///     .in_periods(["。"])
     ///     .no_break_words(["モーニング娘。"])
-    ///     .build();
+    ///     .build()
+    ///     .unwrap();
     /// let text = "モーニング娘。の新曲";
     /// let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
     /// let expected = vec!["モーニング娘。の新曲"];
@@ -176,12 +188,20 @@ impl SegmenterBuilder {
     /// let seg = SegmenterBuilder::new()
     ///     .in_periods(["．"])
     ///     .no_break_regex(Regex::new(r"\d(．)\d").unwrap())
-    ///     .build();
+    ///     .build()
+    ///     .unwrap();
     /// let text = "３．１４";
     /// let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
     /// let expected = vec!["３．１４"];
     /// assert_eq!(sentences, expected);
     /// ```
+    ///
+    /// # Notes
+    ///
+    /// This function takes a single regex pattern, not a sequence of those, because
+    ///  - many regex patterns should be registered as a general rule, and
+    ///  - a single regex can define multiple rules.
+    /// Nonetheless, you can register multiple patterns by repeating this function.
     pub fn no_break_regex(mut self, regex: Regex) -> Self {
         self.regexes.push(regex);
         self
@@ -193,12 +213,17 @@ impl SegmenterBuilder {
     /// A smaller value will speed up segmentation but
     /// make it more susceptible to errant parenthesis pairs.
     ///
-    /// # Panic
+    /// # Errors
     ///
-    /// It will be panic when `max_quote_level == 0`.
-    pub fn max_quote_level(mut self, max_quote_level: usize) -> Self {
-        assert_ne!(max_quote_level, 0);
-        self.max_quote_level = max_quote_level;
-        self
+    /// An error will arise when `max_quote_level == 0`.
+    pub fn max_quote_level(mut self, max_quote_level: usize) -> Result<Self> {
+        if max_quote_level == 0 {
+            Err(EasySegmenterError::input(
+                "max_quote_level must not be zero.",
+            ))
+        } else {
+            self.max_quote_level = max_quote_level;
+            Ok(self)
+        }
     }
 }

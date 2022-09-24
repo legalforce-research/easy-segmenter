@@ -48,7 +48,8 @@ use easy_segmenter::SegmenterBuilder;
 let seg = SegmenterBuilder::new()
     .in_periods(["。"]) // Inclusive periods
     .ex_periods(["\n"]) // Exclusive periods
-    .build();
+    .build()
+    .unwrap();
 let text = "なるほど\nその通りですね。";
 let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
 let expected = vec!["なるほど", "その通りですね。"]; // "\n" is excluded.
@@ -64,7 +65,8 @@ The match semantics allow for handling specific cases such as carriage returns a
 let seg = SegmenterBuilder::new()
     .in_periods(["。", "。。。"])
     .ex_periods(["\n", "\r\n", "\r"])
-    .build();
+    .build()
+    .unwrap();
 let text = "なるほど。。。その通りですね\r\n";
 let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
 let expected = vec!["なるほど。。。", "その通りですね"];
@@ -74,7 +76,10 @@ assert_eq!(sentences, expected);
 Itemization can be also handled.
 
 ```rust
-let seg = SegmenterBuilder::new().ex_periods(["\n", "\n・"]).build();
+let seg = SegmenterBuilder::new()
+    .ex_periods(["\n", "\n・"])
+    .build()
+    .unwrap();
 let text = "買うもの\n・ご飯\n・卵\n・醤油\n計３点";
 let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
 let expected = vec!["買うもの", "ご飯", "卵", "醤油", "計３点"];
@@ -86,7 +91,7 @@ assert_eq!(sentences, expected);
 easy-segmenter provides three ways to define rules for not segmenting sentences.
 These rules always take priority over periods.
 
-#### Quotation
+#### 1. Quotation
 
 Quoted sentences will not be segmented.
 You can define pairs of parentheses to specify quotations.
@@ -97,14 +102,15 @@ use easy_segmenter::SegmenterBuilder;
 let seg = SegmenterBuilder::new()
     .in_periods(["。"])
     .parentheses([('「', '」')])
-    .build();
+    .build()
+    .unwrap();
 let text = "私は「はい。そうです。」と答えた。";
 let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
 let expected = vec!["私は「はい。そうです。」と答えた。"];
 assert_eq!(sentences, expected);
 ```
 
-#### Words
+#### 2. Words
 
 You can define words that should not be segmented.
 
@@ -114,17 +120,20 @@ use easy_segmenter::SegmenterBuilder;
 let seg = SegmenterBuilder::new()
     .in_periods(["。"])
     .no_break_words(["モーニング娘。"])
-    .build();
+    .build()
+    .unwrap();
 let text = "モーニング娘。の新曲";
 let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
 let expected = vec!["モーニング娘。の新曲"];
 assert_eq!(sentences, expected);
 ```
 
-#### Regex
+#### 3. Regex
 
 You can define regex patterns that should not be segmented.
 Captured patterns will not be segmented.
+
+Example 1. Handling decimal points.
 
 ```rust
 use regex::Regex;
@@ -133,10 +142,28 @@ use easy_segmenter::SegmenterBuilder;
 let seg = SegmenterBuilder::new()
     .in_periods(["．"])
     .no_break_regex(Regex::new(r"\d(．)\d").unwrap())
-    .build();
+    .build()
+    .unwrap();
 let text = "３．１４";
 let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
 let expected = vec!["３．１４"];
+assert_eq!(sentences, expected);
+```
+
+Example 2. Handling dot sequences.
+
+```rust
+use regex::Regex;
+use easy_segmenter::SegmenterBuilder;
+
+let seg = SegmenterBuilder::new()
+    .in_periods(["。"])
+    .no_break_regex(Regex::new(r"(。{2,})。").unwrap())
+    .build()
+    .unwrap();
+let text = "はぁ。。。。。疲れた。。。";
+let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+let expected = vec!["はぁ。。。。。", "疲れた。。。"];
 assert_eq!(sentences, expected);
 ```
 
