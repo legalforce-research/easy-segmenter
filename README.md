@@ -12,7 +12,7 @@ use easy_segmenter::Segmenter;
 
 // Creates a segmenter with basic segmentation rules.
 // See the API documentation for the definition.
-let seg = Segmenter::with_basic_ja_config();
+let seg = Segmenter::with_template_ja_config();
 
 let text = "円周率はいくつですか？３．１４です。なるほど、\
     以前に「３の方が良いのでは？」と聞いた気がしますが\n今も３．１４なんですね";
