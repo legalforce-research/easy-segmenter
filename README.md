@@ -8,11 +8,9 @@ through a generic framework without hardcoding segmentation rules.
 ## Getting started
 
 ```rust
-use easy_segmenter::Segmenter;
-
 // Creates a segmenter with basic segmentation rules.
 // See the API documentation for the definition.
-let seg = Segmenter::with_template_ja_config();
+let seg = easy_segmenter::Segmenter::with_template_ja_config();
 
 let text = "円周率はいくつですか？３．１４です。なるほど、\
     以前に「３の方が良いのでは？」と聞いた気がしますが\n今も３．１４なんですね";
@@ -43,9 +41,7 @@ easy-segmenter handles two types of sentence terminators (or *periods*):
 - *Exclusive periods* that are excluded in resulting sentences.
 
 ```rust
-use easy_segmenter::SegmenterBuilder;
-
-let seg = SegmenterBuilder::new()
+let seg = easy_segmenter::SegmenterBuilder::new()
     .in_periods(["。"]) // Inclusive periods
     .ex_periods(["\n"]) // Exclusive periods
     .build()
@@ -62,7 +58,7 @@ the [leftmost-longest one](https://docs.rs/aho-corasick/latest/aho_corasick/enum
 The match semantics allow for handling specific cases such as carriage returns and multiple dots.
 
 ```rust
-let seg = SegmenterBuilder::new()
+let seg = easy_segmenter::SegmenterBuilder::new()
     .in_periods(["。", "。。。"])
     .ex_periods(["\n", "\r\n", "\r"])
     .build()
@@ -76,7 +72,7 @@ assert_eq!(sentences, expected);
 Itemization can be also handled.
 
 ```rust
-let seg = SegmenterBuilder::new()
+let seg = easy_segmenter::SegmenterBuilder::new()
     .ex_periods(["\n", "\n・"])
     .build()
     .unwrap();
@@ -97,9 +93,7 @@ Quoted sentences will not be segmented.
 You can define pairs of parentheses to specify quotations.
 
 ```rust
-use easy_segmenter::SegmenterBuilder;
-
-let seg = SegmenterBuilder::new()
+let seg = easy_segmenter::SegmenterBuilder::new()
     .in_periods(["。"])
     .parentheses([('「', '」')])
     .build()
@@ -115,9 +109,7 @@ assert_eq!(sentences, expected);
 You can define words that should not be segmented.
 
 ```rust
-use easy_segmenter::SegmenterBuilder;
-
-let seg = SegmenterBuilder::new()
+let seg = easy_segmenter::SegmenterBuilder::new()
     .in_periods(["。"])
     .no_break_words(["モーニング娘。"])
     .build()
@@ -133,15 +125,12 @@ assert_eq!(sentences, expected);
 You can define regex patterns that should not be segmented.
 Captured patterns will not be segmented.
 
-Example 1. Handling decimal points.
+- Example 1. Handling decimal points
 
 ```rust
-use regex::Regex;
-use easy_segmenter::SegmenterBuilder;
-
-let seg = SegmenterBuilder::new()
+let seg = easy_segmenter::SegmenterBuilder::new()
     .in_periods(["．"])
-    .no_break_regex(Regex::new(r"\d(．)\d").unwrap())
+    .no_break_regex(regex::Regex::new(r"\d(．)\d").unwrap())
     .build()
     .unwrap();
 let text = "３．１４";
@@ -150,15 +139,12 @@ let expected = vec!["３．１４"];
 assert_eq!(sentences, expected);
 ```
 
-Example 2. Handling dot sequences.
+- Example 2. Handling dot sequences
 
 ```rust
-use regex::Regex;
-use easy_segmenter::SegmenterBuilder;
-
-let seg = SegmenterBuilder::new()
+let seg = easy_segmenter::SegmenterBuilder::new()
     .in_periods(["。"])
-    .no_break_regex(Regex::new(r"(。{2,})。").unwrap())
+    .no_break_regex(regex::Regex::new(r"(。{2,})。").unwrap())
     .build()
     .unwrap();
 let text = "はぁ。。。。。疲れた。。。";
@@ -184,13 +170,13 @@ Therefore, it should not be included in easy-segmenter.
 
 Some other tools erase line breaks that are erroneously inserted in a sentence.
 
-```
+```text
 "新しい\n教科書" => ["新しい教科書"]
 ```
 
 easy-segmenter does not fix such errors because whether or not it is an error depends on the data.
 
-```
+```text
 "新しい\n教科書" => ["新しい", "教科書"]
 ```
 
@@ -200,7 +186,7 @@ Those errors should be corrected using natural language processing techniques in
 
 Quotation blocks like below are not also corrected in easy-segmenter with the same reason.
 
-```
+```text
 >> コーディングが好きなソフトウェ
 >> アエンジニアや研究が好きなリサ
 >> ーチエンジニアを募集しています
