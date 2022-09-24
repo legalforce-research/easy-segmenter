@@ -1,7 +1,7 @@
 //! Basic segmentation rules in Japanese.
 use regex::Regex;
 
-/// Creates a list of basic_ja inclusive periods.
+/// Creates a list of basic inclusive periods.
 ///
 /// See the source code for the specific definition.
 ///
@@ -22,7 +22,7 @@ pub fn in_periods() -> Vec<&'static str> {
     vec!["。", "．", "？", "！", "? ", "! "]
 }
 
-/// Creates a list of basic_ja exclusive periods.
+/// Creates a list of basic exclusive periods.
 ///
 /// See the source code for the specific definition.
 ///
