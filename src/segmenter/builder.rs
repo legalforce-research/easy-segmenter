@@ -42,7 +42,7 @@ impl SegmenterBuilder {
         let quote_matcher = if self.parentheses.is_empty() {
             None
         } else {
-            Some(QuoteMatcher::new(&self.parentheses))
+            Some(QuoteMatcher::new(&self.parentheses)?)
         };
         let word_matcher = if self.words.is_empty() {
             None
@@ -117,9 +117,7 @@ impl SegmenterBuilder {
     /// Adds parentheses to specify quotations.
     /// Sentences within a quotation will not be broken.
     ///
-    /// # Panic
-    ///
-    /// [`Self::build`] will be panic when `parentheses` has duplicate entries.
+    /// `parentheses` must not have duplicate entries.
     ///
     /// # Examples
     ///
@@ -208,12 +206,17 @@ impl SegmenterBuilder {
     /// A smaller value will speed up segmentation but
     /// make it more susceptible to errant parenthesis pairs.
     ///
-    /// # Panic
+    /// # Errors
     ///
-    /// It will be panic when `max_quote_level == 0`.
-    pub fn max_quote_level(mut self, max_quote_level: usize) -> Self {
-        assert_ne!(max_quote_level, 0);
-        self.max_quote_level = max_quote_level;
-        self
+    /// An error will arise when `max_quote_level == 0`.
+    pub fn max_quote_level(mut self, max_quote_level: usize) -> Result<Self> {
+        if max_quote_level == 0 {
+            Err(EasySegmenterError::input(
+                "max_quote_level must not be zero.",
+            ))
+        } else {
+            self.max_quote_level = max_quote_level;
+            Ok(self)
+        }
     }
 }
