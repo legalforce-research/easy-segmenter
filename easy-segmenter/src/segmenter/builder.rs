@@ -153,9 +153,9 @@ impl SegmenterBuilder {
     ///     .in_periods(["．"])
     ///     .no_break_regex(Regex::new(r"\d(．)\d").unwrap())
     ///     .build();
-    /// let text = "３．１４１５９２";
+    /// let text = "３．１４";
     /// let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
-    /// let expected = vec!["３．１４１５９２"];
+    /// let expected = vec!["３．１４"];
     /// assert_eq!(sentences, expected);
     /// ```
     pub fn no_break_regex(mut self, regex: Regex) -> Self {
