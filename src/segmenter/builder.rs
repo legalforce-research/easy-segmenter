@@ -9,9 +9,14 @@ use crate::segmenter::Segmenter;
 pub const DEFAULT_MAX_QUOTE_LEVEL: usize = 3;
 
 /// Builder of [`Segmenter`] to define segmentation rules.
-///
 /// This class allows rules to be defined from scratch.
 /// You can also use template rules in [`crate::template`].
+///
+/// # Rules in periods
+///
+/// Periods are detected with exact string matching for a set of patterns.
+/// If multiple periods are overlapped at a position,
+/// the [leftmost-longest one](https://docs.rs/aho-corasick/latest/aho_corasick/enum.MatchKind.html#variant.LeftmostLongest) is detected.
 pub struct SegmenterBuilder {
     in_periods: Vec<String>,
     ex_periods: Vec<String>,
