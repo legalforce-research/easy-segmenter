@@ -168,13 +168,16 @@ Those errors should be corrected using natural language processing techniques in
 
 ### Quotation blocks
 
-Quotation blocks are not also corrected in easy-segmenter.
+Quotation blocks like below are not also corrected in easy-segmenter with the same reason.
 
 ```
 >> コーディングが好きなソフトウェ
 >> アエンジニアや研究が好きなリサ
 >> ーチエンジニアを募集しています
 ```
+
+However, easy-segmenter will be useful to remove those quotation markers in preprocessing.
+It can be achived by segmenting the original text with `ex_periods(["\n>> "])` and concatenating the resulting sentences.
 
 ## Disclaimer
 
