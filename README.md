@@ -8,8 +8,6 @@ through a generic framework without hardcoding segmentation rules.
 ## Getting started
 
 ```rust
-// Creates a segmenter with basic segmentation rules.
-// See the API documentation for the definition.
 let seg = easy_segmenter::Segmenter::with_template_ja_config();
 
 let text = "円周率はいくつですか？３．１４です。なるほど、以前に「３の方が良いのでは？」と\n聞いた気がします";
@@ -22,6 +20,11 @@ let expected = vec![
 ];
 assert_eq!(sentences, expected);
 ```
+
+`with_template_ja_config` creates a segmenter with basic segmentation rules.
+See the API documentation for the definition.
+
+Also, you can manually define segmentation rules as follows.
 
 ## How to customize
 
