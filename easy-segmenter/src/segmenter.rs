@@ -39,7 +39,7 @@ impl Segmenter {
     }
 
     /// Creates an instance with basic segmentation rules.
-    pub fn basic_configure() -> Self {
+    pub fn with_basic_configure() -> Self {
         SegmenterBuilder::new()
             .in_periods(basic::in_periods())
             .ex_periods(basic::ex_periods())

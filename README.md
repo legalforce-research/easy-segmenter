@@ -5,7 +5,7 @@ Fast and customizable, but easy-to-use, rule-based sentence segmenter.
 ## Getting started
 
 ```rust
-let seg = Segmenter::basic_configure();
+let seg = Segmenter::with_basic_configure();
 let text = "円周率はいくつですか？３．１４です。なるほど、\
     以前に「３の方が良いのでは？」と聞いた気がしますが\n今も３．１４なんですね";
 let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
