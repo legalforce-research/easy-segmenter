@@ -1,17 +1,17 @@
-//! Basic segmentation rules.
+//! Basic segmentation rules in Japanese.
 use regex::Regex;
 
-/// Creates a list of basic inclusive periods.
+/// Creates a list of basic_ja inclusive periods.
 ///
 /// See the source code for the specific definition.
 ///
 /// # Examples
 ///
 /// ```
-/// use easy_segmenter::{basic, SegmenterBuilder};
+/// use easy_segmenter::{basic_ja, SegmenterBuilder};
 ///
 /// let seg = SegmenterBuilder::new()
-///     .in_periods(basic::in_periods())
+///     .in_periods(basic_ja::in_periods())
 ///     .build();
 /// let text = "それは何ですか？ペンです。";
 /// let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
@@ -22,17 +22,17 @@ pub fn in_periods() -> Vec<&'static str> {
     vec!["。", "．", "？", "！", "? ", "! "]
 }
 
-/// Creates a list of basic exclusive periods.
+/// Creates a list of basic_ja exclusive periods.
 ///
 /// See the source code for the specific definition.
 ///
 /// # Examples
 ///
 /// ```
-/// use easy_segmenter::{basic, SegmenterBuilder};
+/// use easy_segmenter::{basic_ja, SegmenterBuilder};
 ///
 /// let seg = SegmenterBuilder::new()
-///     .ex_periods(basic::ex_periods())
+///     .ex_periods(basic_ja::ex_periods())
 ///     .build();
 /// let text = "これはペンです\r\nそれはマーカーです\n";
 /// let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
@@ -50,11 +50,11 @@ pub fn ex_periods() -> Vec<&'static str> {
 /// # Examples
 ///
 /// ```
-/// use easy_segmenter::{basic, SegmenterBuilder};
+/// use easy_segmenter::{basic_ja, SegmenterBuilder};
 ///
 /// let seg = SegmenterBuilder::new()
-///     .in_periods(basic::in_periods())
-///     .parentheses(basic::parentheses())
+///     .in_periods(basic_ja::in_periods())
+///     .parentheses(basic_ja::parentheses())
 ///     .build();
 /// let text = "私は「はい。そうです。」と答えた。";
 /// let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
@@ -81,11 +81,11 @@ pub fn parentheses() -> Vec<(char, char)> {
 /// # Examples
 ///
 /// ```
-/// use easy_segmenter::{basic, SegmenterBuilder};
+/// use easy_segmenter::{basic_ja, SegmenterBuilder};
 ///
 /// let seg = SegmenterBuilder::new()
 ///     .in_periods(["．"])
-///     .no_break_regex(basic::decimal_point())
+///     .no_break_regex(basic_ja::decimal_point())
 ///     .build();
 /// let text = "三．一四";
 /// let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();

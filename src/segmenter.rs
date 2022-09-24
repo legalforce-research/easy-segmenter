@@ -7,7 +7,7 @@ mod tests;
 
 use regex::Regex;
 
-use crate::basic;
+use crate::basic_ja;
 use crate::matcher::{PeriodMatcher, QuoteMatcher, WordMatcher};
 
 const DEFAULT_MAX_QUOTE_LEVEL: usize = 3;
@@ -60,10 +60,10 @@ impl Segmenter {
     /// Creates an instance with basic segmentation rules.
     pub fn with_basic_ja_configure() -> Self {
         SegmenterBuilder::new()
-            .in_periods(basic::in_periods())
-            .ex_periods(basic::ex_periods())
-            .parentheses(basic::parentheses())
-            .no_break_regex(basic::decimal_point())
+            .in_periods(basic_ja::in_periods())
+            .ex_periods(basic_ja::ex_periods())
+            .parentheses(basic_ja::parentheses())
+            .no_break_regex(basic_ja::decimal_point())
             .build()
     }
 
