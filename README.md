@@ -6,27 +6,67 @@ Fast and customizable, but easy-to-use, rule-based sentence segmenter.
 
 ## Customizability
 
-`easy_segmenter::Segmenter` does not hardcode any segmentation rules, and
+`easy_segmenter::Segmenter` does not hardcode any segmentation rules and
 provides a simple framework of rule definitions.
 
-### Periods
+You only need to define the two types of rules:
+- what to segment sentences by, and
+- what not to segment.
+
+### Periods for segmenting sentences
+
+easy-segmenter handles two types of sentence terminators (or *periods*):
+
+- *Inclusive periods* that are included in resulting sentences, and
+- *Exclusive periods* that are excluded in resulting sentences.
 
 ```rust
 use easy_segmenter::SegmenterBuilder;
 
 let seg = SegmenterBuilder::new()
-    .in_periods(["。"])
-    .ex_periods(["\n"])
+    .in_periods(["。"]) // Inclusive periods
+    .ex_periods(["\n"]) // Exclusive periods
     .build();
 let text = "なるほど\nその通りですね。";
 let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
-let expected = vec!["なるほど", "その通りですね。"];
+let expected = vec!["なるほど", "その通りですね。"]; // "\n" is excluded.
+assert_eq!(sentences, expected);
+```
+
+Periods are detected with exact string matching for a set of patterns.
+If multiple periods are overlapped at a position,
+the [leftmost-longest one](https://docs.rs/aho-corasick/latest/aho_corasick/enum.MatchKind.html#variant.LeftmostLongest) is detected.
+The match semantics allow for handling specific cases such as carriage returns and multiple dots.
+
+```rust
+let seg = SegmenterBuilder::new()
+    .in_periods(["。", "。。。"])
+    .ex_periods(["\n", "\r\n", "\r"])
+    .build();
+let text = "なるほど。。。その通りですね\r\n";
+let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+let expected = vec!["なるほど。。。", "その通りですね"];
+assert_eq!(sentences, expected);
+```
+
+Itemization can be also handled.
+
+```rust
+let seg = SegmenterBuilder::new().ex_periods(["\n", "\n・"]).build();
+let text = "買うもの\n・ご飯\n・卵\n・醤油";
+let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+let expected = vec!["買うもの", "ご飯", "卵", "醤油"];
 assert_eq!(sentences, expected);
 ```
 
 ### Rules for not segmenting sentences
 
+easy-segmenter
+
 #### Quotation
+
+Quoted sentences will not be segmented.
+You can define pairs of parentheses to specify quotations.
 
 ```rust
 use easy_segmenter::SegmenterBuilder;
@@ -43,6 +83,8 @@ assert_eq!(sentences, expected);
 
 #### Words
 
+You can define words that should not be segmented.
+
 ```rust
 use easy_segmenter::SegmenterBuilder;
 
@@ -58,6 +100,9 @@ assert_eq!(sentences, expected);
 
 #### Regex
 
+You can define regex patterns that should not be segmented.
+Captured patterns will not be segmented.
+
 ```rust
 use regex::Regex;
 use easy_segmenter::SegmenterBuilder;
@@ -72,6 +117,8 @@ let expected = vec!["３．１４"];
 assert_eq!(sentences, expected);
 ```
 
+Regular expressions are powerful, but complicated ones can slow down segmentation.
+Consider using `no_break_words` first to solve your problem.
 
 ## Not supported by easy-segmenter
 
@@ -104,7 +151,7 @@ Those errors should be corrected using natural language processing techniques in
 Quotation blocks are not also corrected in easy-segmenter.
 
 ```
-> コーディングが好きなソフトウェ
-> アエンジニアや研究が好きなリサ
-> ーチエンジニアを募集しています
+>> コーディングが好きなソフトウェ
+>> アエンジニアや研究が好きなリサ
+>> ーチエンジニアを募集しています
 ```

@@ -171,6 +171,27 @@ mod tests {
     }
 
     #[test]
+    fn test_duplicate_periods() {
+        let seg = SegmenterBuilder::new()
+            .in_periods(["。", "。。。"])
+            .ex_periods(["\n", "\r\n", "\r"])
+            .build();
+        let text = "なるほど。。。その通りですね\r\n";
+        let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+        let expected = vec!["なるほど。。。", "その通りですね"];
+        assert_eq!(sentences, expected);
+    }
+
+    #[test]
+    fn test_listing() {
+        let seg = SegmenterBuilder::new().ex_periods(["\n", "\n・"]).build();
+        let text = "買うもの\n・ご飯\n・卵\n・醤油";
+        let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+        let expected = vec!["買うもの", "ご飯", "卵", "醤油"];
+        assert_eq!(sentences, expected);
+    }
+
+    #[test]
     fn test_quote_1() {
         let seg = SegmenterBuilder::new()
             .in_periods(["。"])
