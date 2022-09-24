@@ -10,8 +10,6 @@ use regex::Regex;
 use crate::basic_ja;
 use crate::matcher::{PeriodMatcher, QuoteMatcher, WordMatcher};
 
-const DEFAULT_MAX_QUOTE_LEVEL: usize = 3;
-
 /// Fast and customizable, but easy-to-use, rule-based sentence segmenter.
 ///
 /// # Examples
@@ -47,13 +45,14 @@ impl Segmenter {
         quote_matcher: QuoteMatcher,
         word_matcher: WordMatcher,
         regex_matchers: Vec<Regex>,
+        max_quote_level: usize,
     ) -> Self {
         Self {
             period_matcher,
             quote_matcher,
             word_matcher,
             regex_matchers,
-            max_quote_level: DEFAULT_MAX_QUOTE_LEVEL,
+            max_quote_level,
         }
     }
 

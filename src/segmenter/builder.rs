@@ -4,6 +4,9 @@ use regex::Regex;
 use crate::matcher::{PeriodMatcher, QuoteMatcher, WordMatcher};
 use crate::segmenter::Segmenter;
 
+/// The default value of the maximum level of nested parentheses handled as quotations.
+pub const DEFAULT_MAX_QUOTE_LEVEL: usize = 3;
+
 /// Builder of [`Segmenter`] to define segmentation rules.
 pub struct SegmenterBuilder {
     in_periods: Vec<String>,
@@ -11,6 +14,7 @@ pub struct SegmenterBuilder {
     parentheses: Vec<(char, char)>,
     words: Vec<String>,
     regexes: Vec<Regex>,
+    max_quote_level: usize,
 }
 
 impl SegmenterBuilder {
@@ -22,6 +26,7 @@ impl SegmenterBuilder {
             parentheses: vec![],
             words: vec![],
             regexes: vec![],
+            max_quote_level: DEFAULT_MAX_QUOTE_LEVEL,
         }
     }
 
@@ -30,7 +35,13 @@ impl SegmenterBuilder {
         let period_matcher = PeriodMatcher::new(&self.in_periods, &self.ex_periods);
         let quote_matcher = QuoteMatcher::new(&self.parentheses);
         let word_matcher = WordMatcher::new(&self.words);
-        Segmenter::new(period_matcher, quote_matcher, word_matcher, self.regexes)
+        Segmenter::new(
+            period_matcher,
+            quote_matcher,
+            word_matcher,
+            self.regexes,
+            self.max_quote_level,
+        )
     }
 
     /// Adds periods that break texts and are included in resulting sentences.
@@ -85,6 +96,10 @@ impl SegmenterBuilder {
 
     /// Adds parentheses to specify quotations.
     /// Sentences within a quotation will not be broken.
+    ///
+    /// # Panic
+    ///
+    /// [`Self::build`] will be panic when `parentheses` has duplicate entries.
     ///
     /// # Examples
     ///
@@ -161,6 +176,21 @@ impl SegmenterBuilder {
     /// ```
     pub fn no_break_regex(mut self, regex: Regex) -> Self {
         self.regexes.push(regex);
+        self
+    }
+
+    /// Sets the maximum level of nested parentheses handled as quotations.
+    /// The default value is [`DEFAULT_MAX_QUOTE_LEVEL`].
+    ///
+    /// A smaller value will speed up segmentation but
+    /// make it more susceptible to errant parenthesis pairs.
+    ///
+    /// # Panic
+    ///
+    /// It will be panic when `max_quote_level == 0`.
+    pub fn max_quote_level(mut self, max_quote_level: usize) -> Self {
+        assert_ne!(max_quote_level, 0);
+        self.max_quote_level = max_quote_level;
         self
     }
 }
