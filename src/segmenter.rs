@@ -64,6 +64,7 @@ impl Segmenter {
             .parentheses(basic_ja::parentheses())
             .no_break_regex(basic_ja::decimal_point())
             .build()
+            .unwrap()
     }
 
     /// Segments an input text into sentences, returning byte-position ranges.
