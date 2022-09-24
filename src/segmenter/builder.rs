@@ -9,6 +9,9 @@ use crate::segmenter::Segmenter;
 pub const DEFAULT_MAX_QUOTE_LEVEL: usize = 3;
 
 /// Builder of [`Segmenter`] to define segmentation rules.
+///
+/// This class allows rules to be defined from scratch.
+/// You can also use template rules in [`crate::basic_ja`].
 pub struct SegmenterBuilder {
     in_periods: Vec<String>,
     ex_periods: Vec<String>,
