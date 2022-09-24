@@ -61,7 +61,8 @@ assert_eq!(sentences, expected);
 
 ### Rules for not segmenting sentences
 
-easy-segmenter
+easy-segmenter provides three ways to define rules for not segmenting sentences.
+These rules always take priority over periods.
 
 #### Quotation
 
@@ -118,7 +119,7 @@ assert_eq!(sentences, expected);
 ```
 
 Regular expressions are powerful, but complicated ones can slow down segmentation.
-Consider using `no_break_words` first to solve your problem.
+*Consider using `no_break_words` first to solve your problem.*
 
 ## Not supported by easy-segmenter
 
