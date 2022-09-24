@@ -19,7 +19,7 @@ use regex::Regex;
 /// assert_eq!(sentences, expected);
 /// ```
 pub fn in_periods() -> Vec<&'static str> {
-    vec!["。", "．", "？", "！", "? ", "! "]
+    vec!["。", "．", "？", "！", "?", "!"]
 }
 
 /// Creates a list of basic exclusive periods.
