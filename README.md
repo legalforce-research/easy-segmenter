@@ -11,7 +11,7 @@ through a generic framework without hardcoding segmentation rules.
 use easy_segmenter::Segmenter;
 
 // Creates a segmenter with basic segmentation rules.
-// See the AIP documentation for the detail.
+// See the API documentation for the definition.
 let seg = Segmenter::with_basic_ja_config();
 
 let text = "円周率はいくつですか？３．１４です。なるほど、\
