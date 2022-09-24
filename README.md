@@ -12,14 +12,13 @@ through a generic framework without hardcoding segmentation rules.
 // See the API documentation for the definition.
 let seg = easy_segmenter::Segmenter::with_template_ja_config();
 
-let text = "円周率はいくつですか？３．１４です。なるほど、\
-    以前に「３の方が良いのでは？」と聞いた気がしますが\n今も３．１４なんですね";
+let text = "円周率はいくつですか？３．１４です。なるほど、以前に「３の方が良いのでは？」と\n聞いた気がします";
 let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
 let expected = vec![
     "円周率はいくつですか？",
     "３．１４です。",
-    "なるほど、以前に「３の方が良いのでは？」と聞いた気がしますが",
-    "今も３．１４なんですね",
+    "なるほど、以前に「３の方が良いのでは？」と",
+    "聞いた気がします",
 ];
 assert_eq!(sentences, expected);
 ```
