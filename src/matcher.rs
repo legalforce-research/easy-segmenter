@@ -2,7 +2,7 @@ use aho_corasick::{AhoCorasick, AhoCorasickBuilder, MatchKind};
 
 use crate::errors::{EasySegmenterError, Result};
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct PeriodMatch {
     pub start: usize,
     pub end: usize,
@@ -56,7 +56,7 @@ impl PeriodMatcher {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct QuoteMatch {
     pub start: usize,
     pub end: usize,
@@ -98,7 +98,7 @@ impl QuoteMatcher {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct WordMatch {
     pub start: usize,
     pub end: usize,
