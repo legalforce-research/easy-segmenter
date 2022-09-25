@@ -13,3 +13,6 @@ regex = "1"
 members = [
     "bench",
 ]
+exclude = [
+    "comparison",
+]
