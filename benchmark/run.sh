@@ -6,7 +6,7 @@ type cargo
 type ruby
 type python3
 
-text_file="gakumon-no-susume.txt"
+text_file="gakumon-no-susume.norm.txt"
 
 pushd easy-segmenter-bench
     cargo run --release < ../${text_file}

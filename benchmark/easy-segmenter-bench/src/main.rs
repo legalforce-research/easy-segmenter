@@ -1,6 +1,6 @@
 use std::io::Read;
 
-use easy_segmenter::Segmenter;
+use easy_segmenter::SegmenterBuilder;
 
 fn main() {
     let runs = 10;
@@ -10,7 +10,13 @@ fn main() {
     let mut num_sents = 0;
     let start = std::time::Instant::now();
     for _ in 0..runs {
-        num_sents += Segmenter::with_template_ja_config().segment(&text).count();
+        let seg = SegmenterBuilder::new()
+            .in_periods(["。", "?", "!"])
+            .ex_periods(["\n"])
+            .parentheses([('(', ')'), ('「', '」')])
+            .build()
+            .unwrap();
+        num_sents += seg.segment(&text).count();
     }
     let duration = start.elapsed();
 
