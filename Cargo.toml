@@ -9,3 +9,8 @@ edition = "2021"
 aho-corasick = "0.7"
 hashbrown = "0.12.3"
 regex = "1"
+
+[workspace]
+members = [
+    "bench",
+]
