@@ -19,3 +19,7 @@ popd
 pushd ja_sentence_segmenter-bench
     python3 main.py < ../${text_file}
 popd
+
+pushd bunkai-bench
+    python3 main.py < ../${text_file}
+popd
