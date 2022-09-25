@@ -176,7 +176,7 @@ Some other tools erase line breaks that are erroneously inserted in a sentence.
 ```
 
 easy-segmenter does not fix such errors because whether or not it is an error depends on the data.
-Those errors should be corrected in pre- or post-processing using NLP techniques.
+Those errors should be corrected in pre- or post-processing using NLP techniques such as [Hayashibe and Mitsuzawa, W-NUT 2020](https://aclanthology.org/2020.wnut-1.10.pdf).
 
 ### Quotation blocks
 
