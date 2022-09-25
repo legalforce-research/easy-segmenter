@@ -23,6 +23,17 @@ fn criterion_waganeko(c: &mut Criterion) {
     add_segment_benches(&mut group, &text);
 }
 
+fn criterion_gakumon(c: &mut Criterion) {
+    let mut group = c.benchmark_group("gakumon");
+    group.sample_size(SAMPLE_SIZE);
+    group.warm_up_time(WARM_UP_TIME);
+    group.measurement_time(MEASURE_TIME);
+    group.sampling_mode(SamplingMode::Flat);
+
+    let text = load_text("data/gakumonno_susume.txt");
+    add_segment_benches(&mut group, &text);
+}
+
 fn add_segment_benches(group: &mut BenchmarkGroup<WallTime>, text: &str) {
     group.bench_function("only-periods", |b| {
         b.iter(|| {
@@ -72,5 +83,5 @@ fn load_text(filename: &str) -> String {
     text
 }
 
-criterion_group!(benches, criterion_waganeko);
+criterion_group!(benches, criterion_waganeko, criterion_gakumon);
 criterion_main!(benches);

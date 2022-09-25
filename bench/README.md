@@ -1,7 +1,5 @@
 # easy-segmenter-bench
 
-## Datasets
+## Credit
 
-The datasets contained here are copied from third party repositories.
-
-- `wagahaiwa_nekodearu.txt`: [Aozora Bunko](https://www.aozora.gr.jp/cards/000148/card789.html)
+The datasets contained `data` are copied from  [Aozora Bunko](https://www.aozora.gr.jp).
