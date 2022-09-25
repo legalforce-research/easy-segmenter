@@ -8,7 +8,7 @@ fn main() {
 
     let seg = SegmenterBuilder::new()
         .in_periods(["。", "?", "!"])
-        .ex_periods(["\n"])
+        .ex_periods(["\n", "\r\n", "\r"])
         .parentheses([('(', ')'), ('「', '」')])
         .build()
         .unwrap();

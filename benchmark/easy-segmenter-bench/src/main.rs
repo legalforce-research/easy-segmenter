@@ -12,7 +12,7 @@ fn main() {
     for _ in 0..runs {
         let seg = SegmenterBuilder::new()
             .in_periods(["。", "?", "!"])
-            .ex_periods(["\n"])
+            .ex_periods(["\n", "\r\n", "\r"])
             .parentheses([('(', ')'), ('「', '」')])
             .build()
             .unwrap();
