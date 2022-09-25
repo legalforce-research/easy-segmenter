@@ -6,7 +6,7 @@ type cargo
 type ruby
 type python3
 
-text_file="data/wagahaiwa_nekodearu.txt"
+text_file=$1
 
 pushd easy-segmenter-bench
     cargo run --release < ../${text_file}
