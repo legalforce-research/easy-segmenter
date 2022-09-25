@@ -1,5 +1,17 @@
 # comparison
 
+## Preparation
+
+You need to install other tools.
+
+```
+$ python -m pip install ja_sentence_segmenter
+$ python -m pip install bunkai
+$ gem install pragmatic_segmenter
+```
+
+## How to bench
+
 To measure segmentation times of all methods,
 
 ```
