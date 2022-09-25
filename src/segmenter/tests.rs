@@ -180,6 +180,15 @@ fn test_empty_text() {
 }
 
 #[test]
+fn test_empty_lines() {
+    let seg = SegmenterBuilder::new().ex_periods(["\n"]).build().unwrap();
+    let text = "これはペンです\n\n\nそれはマーカーです";
+    let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
+    let expected = vec!["これはペンです", "それはマーカーです"];
+    assert_eq!(sentences, expected);
+}
+
+#[test]
 fn test_basic() {
     let seg = Segmenter::with_template_ja_config();
     let text = "円周率はいくつですか？３．１４です。なるほど、\
