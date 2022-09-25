@@ -93,6 +93,9 @@ impl Segmenter {
             let end_pos = if m.is_in_period { m.end } else { m.start };
             if end_pos != 0 && no_break[end_pos - 1] {
                 None
+            } else if start_pos == end_pos {
+                start_pos = m.end;
+                None
             } else {
                 let range = (start_pos, end_pos);
                 start_pos = m.end;
