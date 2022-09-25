@@ -12,13 +12,13 @@ through a generic framework without hardcoding segmentation rules.
 // See the API documentation for the definition.
 let seg = easy_segmenter::Segmenter::with_template_ja_config();
 
-let text = "円周率はいくつですか？３．１４です。なるほど、以前に「３の方が良いのでは？」と\n聞いた気がします";
+let text = "円周率はいくつですか？３．１４です。なるほど\n以前に「３の方が良いのでは？」と聞いた気がします";
 let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
 let expected = vec![
     "円周率はいくつですか？",
     "３．１４です。",
-    "なるほど、以前に「３の方が良いのでは？」と",
-    "聞いた気がします",
+    "なるほど",
+    "以前に「３の方が良いのでは？」と聞いた気がします",
 ];
 assert_eq!(sentences, expected);
 ```
@@ -176,12 +176,7 @@ Some other tools erase line breaks that are erroneously inserted in a sentence.
 ```
 
 easy-segmenter does not fix such errors because whether or not it is an error depends on the data.
-
-```text
-"新しい\n教科書" => ["新しい", "教科書"]
-```
-
-Those errors should be corrected using natural language processing techniques in pre- or post-processing.
+Those errors should be corrected in pre- or post-processing using NLP techniques.
 
 ### Quotation blocks
 
