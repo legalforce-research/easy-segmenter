@@ -1,4 +1,6 @@
-# comparison
+# easy-segmenter/comparison
+
+Here provides speed comparision of several segmenters.
 
 ## Preparation
 
