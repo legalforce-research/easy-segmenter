@@ -1,8 +1,8 @@
 use aho_corasick::{AhoCorasick, AhoCorasickBuilder, MatchKind};
-use hashbrown::HashMap;
 
 use crate::errors::{EasySegmenterError, Result};
 
+#[derive(Debug, PartialEq, Eq)]
 pub struct PeriodMatch {
     pub start: usize,
     pub end: usize,
@@ -56,6 +56,7 @@ impl PeriodMatcher {
     }
 }
 
+#[derive(Debug, PartialEq, Eq)]
 pub struct QuoteMatch {
     pub start: usize,
     pub end: usize,
@@ -64,47 +65,40 @@ pub struct QuoteMatch {
 }
 
 pub struct QuoteMatcher {
-    map: HashMap<char, usize>,
+    pma: AhoCorasick,
 }
 
 impl QuoteMatcher {
     pub fn new(parentheses: &[(char, char)]) -> Result<Self> {
-        let mut map = HashMap::new();
-        for (i, &(p, q)) in parentheses.iter().enumerate() {
-            if map.insert(p, i * 2).is_some() {
-                return Err(EasySegmenterError::input(format!(
-                    "{p} has been already registered. Entries must be unique."
-                )));
-            }
-            if map.insert(q, i * 2 + 1).is_some() {
-                return Err(EasySegmenterError::input(format!(
-                    "{q} has been already registered. Entries must be unique."
-                )));
-            }
+        let mut patterns = vec![];
+        for &(p, q) in parentheses {
+            patterns.push(p.to_string());
+            patterns.push(q.to_string());
         }
-        Ok(Self { map })
+        if !is_unique(&patterns) {
+            return Err(EasySegmenterError::input("Entries must be unique."));
+        }
+        let pma = AhoCorasickBuilder::new()
+            .auto_configure(&patterns)
+            .build(&patterns);
+        Ok(Self { pma })
     }
 
     pub fn iter<'a>(&'a self, text: &'a str) -> impl Iterator<Item = QuoteMatch> + 'a {
-        let mut end = 0;
-        text.chars().filter_map(move |c| {
-            let len = c.len_utf8();
-            let start = end;
-            end += len;
-            self.map.get(&c).cloned().map(|v| {
-                let id = v / 2;
-                let is_open = v % 2 == 0;
-                QuoteMatch {
-                    start,
-                    end,
-                    id,
-                    is_open,
-                }
-            })
+        self.pma.find_iter(text).map(move |m| {
+            let id = m.pattern() / 2;
+            let is_open = m.pattern() % 2 == 0;
+            QuoteMatch {
+                start: m.start(),
+                end: m.end(),
+                id,
+                is_open,
+            }
         })
     }
 }
 
+#[derive(Debug, PartialEq, Eq)]
 pub struct WordMatch {
     pub start: usize,
     pub end: usize,
@@ -131,5 +125,60 @@ impl WordMatcher {
                 start: m.start(),
                 end: m.end(),
             })
+    }
+}
+
+fn is_unique<S>(x: &[S]) -> bool
+where
+    S: AsRef<str>,
+{
+    let mut v: Vec<_> = x.iter().map(|s| s.as_ref()).collect();
+    v.sort_unstable();
+    v.dedup();
+    v.len() == x.len()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_quote_1() {
+        let parentheses = vec![('「', '」'), ('（', '）')];
+        let matcher = QuoteMatcher::new(&parentheses).unwrap();
+        let matches: Vec<_> = matcher.iter("「」（）").collect();
+        let expected = vec![
+            QuoteMatch {
+                start: 0,
+                end: 3,
+                id: 0,
+                is_open: true,
+            },
+            QuoteMatch {
+                start: 3,
+                end: 6,
+                id: 0,
+                is_open: false,
+            },
+            QuoteMatch {
+                start: 6,
+                end: 9,
+                id: 1,
+                is_open: true,
+            },
+            QuoteMatch {
+                start: 9,
+                end: 12,
+                id: 1,
+                is_open: false,
+            },
+        ];
+        assert_eq!(matches, expected);
+    }
+
+    #[test]
+    fn test_quote_2() {
+        let parentheses = vec![('「', '」'), ('（', '」')];
+        assert!(QuoteMatcher::new(&parentheses).is_err());
     }
 }
