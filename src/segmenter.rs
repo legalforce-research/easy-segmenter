@@ -7,6 +7,7 @@ mod tests;
 
 use regex::Regex;
 
+use crate::bitset::Bitset;
 use crate::matcher::{PeriodMatcher, QuoteMatcher, WordMatcher};
 use crate::template;
 
@@ -69,7 +70,7 @@ impl Segmenter {
 
     /// Segments an input text into sentences, returning byte-position ranges.
     pub fn segment<'a>(&'a self, text: &'a str) -> impl Iterator<Item = (usize, usize)> + 'a {
-        let mut no_break = vec![false; text.len()];
+        let mut no_break = Bitset::new(text.len());
 
         // TODO: Parallelization
         self.find_quotes(text, &mut no_break);
@@ -91,7 +92,7 @@ impl Segmenter {
             // if is_in_period, the period should be inclusive in the segment;
             // otherwise, the period should be exclusive in the segment.
             let end_pos = if m.is_in_period { m.end } else { m.start };
-            if end_pos != 0 && no_break[end_pos - 1] {
+            if end_pos != 0 && no_break.get(end_pos - 1) {
                 None
             } else if start_pos == end_pos {
                 start_pos = m.end;
@@ -104,7 +105,7 @@ impl Segmenter {
         })
     }
 
-    fn find_quotes(&self, text: &str, detected: &mut [bool]) {
+    fn find_quotes(&self, text: &str, detected: &mut Bitset) {
         if let Some(quote_matcher) = self.quote_matcher.as_ref() {
             let mut stack = vec![];
             for m in quote_matcher.iter(text) {
@@ -122,33 +123,27 @@ impl Segmenter {
                 // NOTE: Since nested quates are processed, this algorithm runs in
                 // O(nk) time, where n is text.len() and k is the max nesting level.
                 if stack.len() <= self.max_quote_level {
-                    for b in detected.iter_mut().take(m.end).skip(start) {
-                        *b = true;
-                    }
+                    detected.set_range(start..m.end);
                 }
                 stack.pop();
             }
         }
     }
 
-    fn find_words(&self, text: &str, detected: &mut [bool]) {
+    fn find_words(&self, text: &str, detected: &mut Bitset) {
         if let Some(word_matcher) = self.word_matcher.as_ref() {
             for m in word_matcher.iter(text) {
-                for b in detected.iter_mut().take(m.end).skip(m.start) {
-                    *b = true;
-                }
+                detected.set_range(m.start..m.end);
             }
         }
     }
 
-    fn find_regex(&self, text: &str, detected: &mut [bool]) {
+    fn find_regex(&self, text: &str, detected: &mut Bitset) {
         for re in &self.regex_matchers {
             for cap in re.captures_iter(text) {
                 for idx in 1..cap.len() {
                     if let Some(m) = cap.get(idx) {
-                        for i in m.range() {
-                            detected[i] = true;
-                        }
+                        detected.set_range(m.range());
                     }
                 }
             }

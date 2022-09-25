@@ -196,6 +196,7 @@ pub mod errors;
 pub mod segmenter;
 pub mod template;
 
+mod bitset;
 mod matcher;
 
 pub use segmenter::{Segmenter, SegmenterBuilder};
