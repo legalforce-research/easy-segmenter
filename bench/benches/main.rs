@@ -19,7 +19,7 @@ fn criterion_waganeko(c: &mut Criterion) {
     group.measurement_time(MEASURE_TIME);
     group.sampling_mode(SamplingMode::Flat);
 
-    let text = load_text("data/wagahaiwa_nekodearu.txt");
+    let text = load_text("../data/wagahaiwa_nekodearu.txt");
     add_segment_benches(&mut group, &text);
 }
 
@@ -30,7 +30,7 @@ fn criterion_gakumon(c: &mut Criterion) {
     group.measurement_time(MEASURE_TIME);
     group.sampling_mode(SamplingMode::Flat);
 
-    let text = load_text("data/gakumonno_susume.txt");
+    let text = load_text("../data/gakumonno_susume.txt");
     add_segment_benches(&mut group, &text);
 }
 
