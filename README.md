@@ -191,10 +191,6 @@ Quotation blocks like below are not also corrected in easy-segmenter with the sa
 However, easy-segmenter will be useful to remove those quotation markers in preprocessing.
 It can be achived by segmenting the original text with `ex_periods(["\n>> "])` and concatenating the resulting sentences.
 
-## Credit
-
-The datasets contained `data` are copied from  [Aozora Bunko](https://www.aozora.gr.jp).
-
 ## Disclaimer
 
 This software is developed by LegalForce, Inc.,
