@@ -166,7 +166,8 @@ although such functions are often supported by other tools.
 
 ### Normalization
 
-The method of normalization depends on your application, and there are several possible methods.
+The method of normalization depends on your application, and there are several possible methods
+such as [neologd](https://github.com/neologd/mecab-ipadic-neologd/wiki/Regexp).
 Therefore, it should not be included in easy-segmenter.
 
 ### Fixing errant line breaks
