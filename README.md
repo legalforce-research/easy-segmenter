@@ -23,7 +23,7 @@ assert_eq!(sentences, expected);
 
 `with_template_ja_config()` creates a segmenter with basic segmentation rules that
 are enhanced from the [Golden Rules](https://github.com/diasks2/pragmatic_segmenter#golden-rules-japanese) in [Pragmatic Segmenter](https://github.com/diasks2/pragmatic_segmenter).
-See the API documentation for the definition.
+See the API documentation for the definition. (Please run `cargo doc` since it has not been published in crates.io yet.)
 
 Also, you can manually define segmentation rules as follows.
 
