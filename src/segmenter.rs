@@ -1,4 +1,4 @@
-//! Fast and customizable, but easy-to-use, rule-based sentence segmenter.
+//! Fast and customizable rule-based sentence segmenter.
 pub mod builder;
 pub use builder::SegmenterBuilder;
 
@@ -11,7 +11,7 @@ use crate::bitset::Bitset;
 use crate::matcher::{PeriodMatcher, QuoteMatcher, WordMatcher};
 use crate::template;
 
-/// Fast and customizable, but easy-to-use, rule-based sentence segmenter.
+/// Fast and customizable rule-based sentence segmenter.
 ///
 /// # Examples
 ///
