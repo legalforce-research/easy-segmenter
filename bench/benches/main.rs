@@ -35,11 +35,11 @@ fn criterion_gakumon(c: &mut Criterion) {
 }
 
 fn add_segment_benches(group: &mut BenchmarkGroup<WallTime>, text: &str) {
-    group.bench_function("only-periods", |b| {
+    group.bench_function("only-delimiters", |b| {
         b.iter(|| {
             let seg = SegmenterBuilder::new()
-                .in_periods(["。", "？", "！"])
-                .ex_periods(["\n", "\r\n", "\r"])
+                .in_delimiters(["。", "？", "！"])
+                .ex_delimiters(["\n", "\r\n", "\r"])
                 .build()
                 .unwrap();
             let dummy = seg.segment(&text).count();
@@ -50,8 +50,8 @@ fn add_segment_benches(group: &mut BenchmarkGroup<WallTime>, text: &str) {
     group.bench_function("with-parentheses", |b| {
         b.iter(|| {
             let seg = SegmenterBuilder::new()
-                .in_periods(["。", "？", "！"])
-                .ex_periods(["\n", "\r\n", "\r"])
+                .in_delimiters(["。", "？", "！"])
+                .ex_delimiters(["\n", "\r\n", "\r"])
                 .parentheses([('(', ')'), ('「', '」')])
                 .build()
                 .unwrap();
@@ -63,8 +63,8 @@ fn add_segment_benches(group: &mut BenchmarkGroup<WallTime>, text: &str) {
     group.bench_function("with-regex", |b| {
         b.iter(|| {
             let seg = SegmenterBuilder::new()
-                .in_periods(["。", "？", "！"])
-                .ex_periods(["\n", "\r\n", "\r"])
+                .in_delimiters(["。", "？", "！"])
+                .ex_delimiters(["\n", "\r\n", "\r"])
                 .no_break_regex(regex::Regex::new(r"(。{2,})。").unwrap())
                 .build()
                 .unwrap();

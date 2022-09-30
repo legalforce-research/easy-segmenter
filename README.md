@@ -44,17 +44,17 @@ You only need to define the two types of rules:
 - what to segment sentences by, and
 - what not to segment.
 
-### Periods for segmenting sentences
+### Delimiters for segmenting sentences
 
-easy-segmenter handles two types of sentence terminators (or *periods*):
+easy-segmenter handles two types of sentence delimiters:
 
-- *Inclusive periods* that are included in resulting sentences, and
-- *Exclusive periods* that are excluded in resulting sentences.
+- *Inclusive delimiters* that are included in resulting sentences, and
+- *Exclusive delimiters* that are excluded in resulting sentences.
 
 ```rust
 let seg = easy_segmenter::SegmenterBuilder::new()
-    .in_periods(["。"]) // Inclusive periods
-    .ex_periods(["\n"]) // Exclusive periods
+    .in_delimiters(["。"]) // Inclusive delimiters
+    .ex_delimiters(["\n"]) // Exclusive delimiters
     .build()
     .unwrap();
 let text = "なるほど\nその通りですね。";
@@ -63,15 +63,15 @@ let expected = vec!["なるほど", "その通りですね。"]; // "\n" is excl
 assert_eq!(sentences, expected);
 ```
 
-Periods are detected with exact string matching for a set of patterns.
-If multiple periods are overlapped at a position,
+Sentence delimiters are detected with exact string matching for a set of patterns.
+If multiple delimiters are overlapped at a position,
 the [leftmost-longest one](https://docs.rs/aho-corasick/latest/aho_corasick/enum.MatchKind.html#variant.LeftmostLongest) is detected.
 The match semantics allow for handling specific cases such as carriage returns and multiple dots.
 
 ```rust
 let seg = easy_segmenter::SegmenterBuilder::new()
-    .in_periods(["。", "。。。"])
-    .ex_periods(["\n", "\r\n", "\r"])
+    .in_delimiters(["。", "。。。"])
+    .ex_delimiters(["\n", "\r\n", "\r"])
     .build()
     .unwrap();
 let text = "なるほど。。。その通りですね\r\n";
@@ -84,7 +84,7 @@ Itemization can be also handled.
 
 ```rust
 let seg = easy_segmenter::SegmenterBuilder::new()
-    .ex_periods(["\n", "\n・"])
+    .ex_delimiters(["\n", "\n・"])
     .build()
     .unwrap();
 let text = "買うもの\n・ご飯\n・卵\n・醤油\n計３点";
@@ -96,7 +96,7 @@ assert_eq!(sentences, expected);
 ### Rules for not segmenting sentences
 
 easy-segmenter provides three ways to define rules for not segmenting sentences.
-These rules always take priority over periods.
+These rules always take priority over sentence delimiters.
 
 #### 1. Quotation
 
@@ -105,7 +105,7 @@ You can define pairs of parentheses to specify quotations.
 
 ```rust
 let seg = easy_segmenter::SegmenterBuilder::new()
-    .in_periods(["。"])
+    .in_delimiters(["。"])
     .parentheses([('「', '」')])
     .build()
     .unwrap();
@@ -121,7 +121,7 @@ You can define words that should not be segmented.
 
 ```rust
 let seg = easy_segmenter::SegmenterBuilder::new()
-    .in_periods(["。"])
+    .in_delimiters(["。"])
     .no_break_words(["モーニング娘。"])
     .build()
     .unwrap();
@@ -140,7 +140,7 @@ Captured patterns will not be segmented.
 
 ```rust
 let seg = easy_segmenter::SegmenterBuilder::new()
-    .in_periods(["．"])
+    .in_delimiters(["．"])
     .no_break_regex(regex::Regex::new(r"\d(．)\d").unwrap())
     .build()
     .unwrap();
@@ -154,7 +154,7 @@ assert_eq!(sentences, expected);
 
 ```rust
 let seg = easy_segmenter::SegmenterBuilder::new()
-    .in_periods(["。"])
+    .in_delimiters(["。"])
     .no_break_regex(regex::Regex::new(r"(。{2,})。").unwrap())
     .build()
     .unwrap();
@@ -200,7 +200,7 @@ Quotation blocks like below are not also corrected in easy-segmenter with the sa
 ```
 
 However, easy-segmenter will be useful to remove those quotation markers in preprocessing.
-It can be achived by segmenting the original text with `ex_periods(["\n>> "])` and concatenating the resulting sentences.
+It can be achived by segmenting the original text with `ex_delimiters(["\n>> "])` and concatenating the resulting sentences.
 
 ## Disclaimer
 

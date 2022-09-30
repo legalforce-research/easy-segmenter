@@ -1,7 +1,7 @@
 //! Basic segmentation rules in Japanese.
 use regex::Regex;
 
-/// Creates a list of basic inclusive periods.
+/// Creates a list of basic inclusive delimiters.
 ///
 /// See the source code for the specific definition.
 ///
@@ -11,7 +11,7 @@ use regex::Regex;
 /// use easy_segmenter::{template, SegmenterBuilder};
 ///
 /// let seg = SegmenterBuilder::new()
-///     .in_periods(template::ja::in_periods())
+///     .in_delimiters(template::ja::in_delimiters())
 ///     .build()
 ///     .unwrap();
 /// let text = "それは何ですか？ペンです。";
@@ -19,11 +19,11 @@ use regex::Regex;
 /// let expected = vec!["それは何ですか？", "ペンです。"];
 /// assert_eq!(sentences, expected);
 /// ```
-pub fn in_periods() -> Vec<&'static str> {
+pub fn in_delimiters() -> Vec<&'static str> {
     vec!["。", "．", "？", "！", "?", "!"]
 }
 
-/// Creates a list of basic exclusive periods.
+/// Creates a list of basic exclusive delimiters.
 ///
 /// See the source code for the specific definition.
 ///
@@ -33,7 +33,7 @@ pub fn in_periods() -> Vec<&'static str> {
 /// use easy_segmenter::{template, SegmenterBuilder};
 ///
 /// let seg = SegmenterBuilder::new()
-///     .ex_periods(template::ja::ex_periods())
+///     .ex_delimiters(template::ja::ex_delimiters())
 ///     .build()
 ///     .unwrap();
 /// let text = "これはペンです\r\nそれはマーカーです\n";
@@ -41,7 +41,7 @@ pub fn in_periods() -> Vec<&'static str> {
 /// let expected = vec!["これはペンです", "それはマーカーです"];
 /// assert_eq!(sentences, expected);
 /// ```
-pub fn ex_periods() -> Vec<&'static str> {
+pub fn ex_delimiters() -> Vec<&'static str> {
     vec!["\n", "\r\n", "\r"]
 }
 
@@ -55,7 +55,7 @@ pub fn ex_periods() -> Vec<&'static str> {
 /// use easy_segmenter::{template, SegmenterBuilder};
 ///
 /// let seg = SegmenterBuilder::new()
-///     .in_periods(template::ja::in_periods())
+///     .in_delimiters(template::ja::in_delimiters())
 ///     .parentheses(template::ja::parentheses())
 ///     .build()
 ///     .unwrap();
@@ -87,7 +87,7 @@ pub fn parentheses() -> Vec<(char, char)> {
 /// use easy_segmenter::{template, SegmenterBuilder};
 ///
 /// let seg = SegmenterBuilder::new()
-///     .in_periods(["．"])
+///     .in_delimiters(["．"])
 ///     .no_break_regex(template::ja::decimal_point())
 ///     .build()
 ///     .unwrap();

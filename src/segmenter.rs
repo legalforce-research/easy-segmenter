@@ -1,4 +1,4 @@
-//! Fast and customizable, but easy-to-use, rule-based sentence segmenter.
+//! Fast and customizable rule-based sentence segmenter.
 pub mod builder;
 pub use builder::SegmenterBuilder;
 
@@ -8,10 +8,10 @@ mod tests;
 use regex::Regex;
 
 use crate::bitset::Bitset;
-use crate::matcher::{PeriodMatcher, QuoteMatcher, WordMatcher};
+use crate::matcher::{DelimiterMatcher, QuoteMatcher, WordMatcher};
 use crate::template;
 
-/// Fast and customizable, but easy-to-use, rule-based sentence segmenter.
+/// Fast and customizable rule-based sentence segmenter.
 ///
 /// # Examples
 ///
@@ -32,7 +32,7 @@ use crate::template;
 /// ```
 pub struct Segmenter {
     // Breakers
-    period_matcher: PeriodMatcher,
+    delimiter_matcher: DelimiterMatcher,
     // Non Breakers
     quote_matcher: Option<QuoteMatcher>,
     word_matcher: Option<WordMatcher>,
@@ -42,14 +42,14 @@ pub struct Segmenter {
 
 impl Segmenter {
     fn new(
-        period_matcher: PeriodMatcher,
+        delimiter_matcher: DelimiterMatcher,
         quote_matcher: Option<QuoteMatcher>,
         word_matcher: Option<WordMatcher>,
         regex_matchers: Vec<Regex>,
         max_quote_level: usize,
     ) -> Self {
         Self {
-            period_matcher,
+            delimiter_matcher,
             quote_matcher,
             word_matcher,
             regex_matchers,
@@ -60,8 +60,8 @@ impl Segmenter {
     /// Creates an instance with basic segmentation rules defined in [`template::ja`].
     pub fn with_template_ja_config() -> Self {
         SegmenterBuilder::new()
-            .in_periods(template::ja::in_periods())
-            .ex_periods(template::ja::ex_periods())
+            .in_delimiters(template::ja::in_delimiters())
+            .ex_delimiters(template::ja::ex_delimiters())
             .parentheses(template::ja::parentheses())
             .no_break_regex(template::ja::decimal_point())
             .build()
@@ -79,19 +79,19 @@ impl Segmenter {
 
         let mut start_pos = 0;
 
-        self.period_matcher.iter(text).filter_map(move |m| {
+        self.delimiter_matcher.iter(text).filter_map(move |m| {
             // Handling the last imaginary terminator.
             if m.start == m.end {
                 if start_pos < text.len() {
-                    // The case that the last character does not have any period.
+                    // The case that the last character does not have any delimiter.
                     return Some((start_pos, text.len()));
                 } else {
                     return None;
                 }
             }
-            // if is_in_period, the period should be inclusive in the segment;
-            // otherwise, the period should be exclusive in the segment.
-            let end_pos = if m.is_in_period { m.end } else { m.start };
+            // if is_in_delimiter, the delimiter should be inclusive in the segment;
+            // otherwise, the delimiter should be exclusive in the segment.
+            let end_pos = if m.is_in_delimiter { m.end } else { m.start };
             if end_pos != 0 && no_break.get(end_pos - 1) {
                 None
             } else if start_pos == end_pos {
