@@ -1,9 +1,6 @@
 //! # easy-segmenter
 //!
-//! easy-segmenter is a Rust library of fast, customizable, but easy-to-use rule-based sentence segmenter.
-//!
-//! The API is designed for Japanese, but is applicable to other languages
-//! through a generic framework without hardcoding segmentation rules.
+//! easy-segmenter is a fast and customizable rule-based sentence segmenter library for Rust.
 //!
 //! ## Getting started
 //!
@@ -23,7 +20,7 @@
 //!
 //! `with_template_ja_config()` creates a segmenter with basic segmentation rules that
 //! are enhanced from the [Golden Rules](https://github.com/diasks2/pragmatic_segmenter#golden-rules-japanese) in [Pragmatic Segmenter](https://github.com/diasks2/pragmatic_segmenter).
-//! See the API documentation for the definition.
+//! See the contents of [`template`] for the definition.
 //!
 //! Also, you can manually define segmentation rules as follows.
 //!

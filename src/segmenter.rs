@@ -1,4 +1,4 @@
-//! Fast and customizable, but easy-to-use, rule-based sentence segmenter.
+//! Segmenter implementation.
 pub mod builder;
 pub use builder::SegmenterBuilder;
 
@@ -11,7 +11,11 @@ use crate::bitset::Bitset;
 use crate::matcher::{PeriodMatcher, QuoteMatcher, WordMatcher};
 use crate::template;
 
-/// Fast and customizable, but easy-to-use, rule-based sentence segmenter.
+/// Segmenter implementation.
+///
+/// This struct provides APIs to build a segmenter from pre-defined segmentation rules
+/// and segment a text into sentences.
+/// If you want to customize the segmentation rules, use [`SegmenterBuilder`].
 ///
 /// # Examples
 ///
