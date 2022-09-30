@@ -11,8 +11,8 @@ fn main() {
     let start = std::time::Instant::now();
     for _ in 0..runs {
         let seg = SegmenterBuilder::new()
-            .in_periods(["。", "?", "!"])
-            .ex_periods(["\n", "\r\n", "\r"])
+            .in_delimiters(["。", "?", "!"])
+            .ex_delimiters(["\n", "\r\n", "\r"])
             .parentheses([('(', ')'), ('「', '」')])
             .build()
             .unwrap();

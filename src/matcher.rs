@@ -3,28 +3,28 @@ use aho_corasick::{AhoCorasick, AhoCorasickBuilder, MatchKind};
 use crate::errors::{EasySegmenterError, Result};
 
 #[derive(Debug, PartialEq, Eq)]
-pub struct PeriodMatch {
+pub struct DelimiterMatch {
     pub start: usize,
     pub end: usize,
-    pub is_in_period: bool,
+    pub is_in_delimiter: bool,
 }
 
-pub struct PeriodMatcher {
+pub struct DelimiterMatcher {
     pma: AhoCorasick,
-    num_in_periods: usize,
+    num_in_delimiters: usize,
 }
 
-impl PeriodMatcher {
-    pub fn new<P>(in_periods: &[P], ex_periods: &[P]) -> Self
+impl DelimiterMatcher {
+    pub fn new<P>(in_delimiters: &[P], ex_delimiters: &[P]) -> Self
     where
         P: AsRef<str>,
     {
         let mut patterns = vec![];
-        in_periods
+        in_delimiters
             .iter()
             .map(|p| p.as_ref())
             .for_each(|p| patterns.push(p));
-        ex_periods
+        ex_delimiters
             .iter()
             .map(|p| p.as_ref())
             .for_each(|p| patterns.push(p));
@@ -34,24 +34,24 @@ impl PeriodMatcher {
             .build(&patterns);
         Self {
             pma,
-            num_in_periods: in_periods.len(),
+            num_in_delimiters: in_delimiters.len(),
         }
     }
 
-    pub fn iter<'a>(&'a self, text: &'a str) -> impl Iterator<Item = PeriodMatch> + 'a {
+    pub fn iter<'a>(&'a self, text: &'a str) -> impl Iterator<Item = DelimiterMatch> + 'a {
         self.pma
             .find_iter(text)
-            .map(move |m| PeriodMatch {
+            .map(move |m| DelimiterMatch {
                 start: m.start(),
                 end: m.end(),
-                is_in_period: m.pattern() < self.num_in_periods,
+                is_in_delimiter: m.pattern() < self.num_in_delimiters,
             })
             // Always returns an imaginary terminator to address the case that
-            // the last character does not have any period.
-            .chain([PeriodMatch {
+            // the last character does not have any delimiter.
+            .chain([DelimiterMatch {
                 start: text.len(),
                 end: text.len(),
-                is_in_period: false,
+                is_in_delimiter: false,
             }])
     }
 }

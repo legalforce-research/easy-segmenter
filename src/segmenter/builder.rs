@@ -2,7 +2,7 @@
 use regex::Regex;
 
 use crate::errors::{EasySegmenterError, Result};
-use crate::matcher::{PeriodMatcher, QuoteMatcher, WordMatcher};
+use crate::matcher::{DelimiterMatcher, QuoteMatcher, WordMatcher};
 use crate::segmenter::Segmenter;
 
 /// The default value of the maximum level of nested parentheses handled as quotations.
@@ -12,14 +12,14 @@ pub const DEFAULT_MAX_QUOTE_LEVEL: usize = 3;
 /// This class allows rules to be defined from scratch.
 /// You can also use template rules in [`crate::template`].
 ///
-/// # Rules in periods
+/// # Rules in delimiters
 ///
-/// Periods are detected with exact string matching for a set of patterns.
-/// If multiple periods are overlapped at a position,
+/// Delimiters are detected with exact string matching for a set of patterns.
+/// If multiple delimiters are overlapped at a position,
 /// the [leftmost-longest one](https://docs.rs/aho-corasick/latest/aho_corasick/enum.MatchKind.html#variant.LeftmostLongest) is detected.
 pub struct SegmenterBuilder {
-    in_periods: Vec<String>,
-    ex_periods: Vec<String>,
+    in_delimiters: Vec<String>,
+    ex_delimiters: Vec<String>,
     parentheses: Vec<(char, char)>,
     words: Vec<String>,
     regexes: Vec<Regex>,
@@ -30,8 +30,8 @@ impl SegmenterBuilder {
     /// Creates an instance.
     pub const fn new() -> Self {
         Self {
-            in_periods: vec![],
-            ex_periods: vec![],
+            in_delimiters: vec![],
+            ex_delimiters: vec![],
             parentheses: vec![],
             words: vec![],
             regexes: vec![],
@@ -41,12 +41,12 @@ impl SegmenterBuilder {
 
     /// Compiles the segmenter.
     pub fn build(self) -> Result<Segmenter> {
-        if self.in_periods.is_empty() && self.ex_periods.is_empty() {
+        if self.in_delimiters.is_empty() && self.ex_delimiters.is_empty() {
             return Err(EasySegmenterError::input(
-                "Both in_ and ex_periods must not be empty.",
+                "Both in_ and ex_delimiters must not be empty.",
             ));
         }
-        let period_matcher = PeriodMatcher::new(&self.in_periods, &self.ex_periods);
+        let delimiter_matcher = DelimiterMatcher::new(&self.in_delimiters, &self.ex_delimiters);
         let quote_matcher = if self.parentheses.is_empty() {
             None
         } else {
@@ -58,7 +58,7 @@ impl SegmenterBuilder {
             Some(WordMatcher::new(&self.words))
         };
         Ok(Segmenter::new(
-            period_matcher,
+            delimiter_matcher,
             quote_matcher,
             word_matcher,
             self.regexes,
@@ -66,7 +66,7 @@ impl SegmenterBuilder {
         ))
     }
 
-    /// Adds periods that break texts and are included in resulting sentences.
+    /// Adds delimiters that break texts and are included in resulting sentences.
     ///
     /// # Examples
     ///
@@ -74,7 +74,7 @@ impl SegmenterBuilder {
     /// use easy_segmenter::SegmenterBuilder;
     ///
     /// let seg = SegmenterBuilder::new()
-    ///     .in_periods(["。", "？"])
+    ///     .in_delimiters(["。", "？"])
     ///     .build()
     ///     .unwrap();
     /// let text = "それは何ですか？ペンです。";
@@ -82,19 +82,19 @@ impl SegmenterBuilder {
     /// let expected = vec!["それは何ですか？", "ペンです。"];
     /// assert_eq!(sentences, expected);
     /// ```
-    pub fn in_periods<I, P>(mut self, periods: I) -> Self
+    pub fn in_delimiters<I, P>(mut self, delimiters: I) -> Self
     where
         I: IntoIterator<Item = P>,
         P: AsRef<str>,
     {
-        periods
+        delimiters
             .into_iter()
             .map(|p| p.as_ref().to_string())
-            .for_each(|p| self.in_periods.push(p));
+            .for_each(|p| self.in_delimiters.push(p));
         self
     }
 
-    /// Adds periods that break texts and are excluded in resulting sentences.
+    /// Adds delimiters that break texts and are excluded in resulting sentences.
     ///
     /// # Examples
     ///
@@ -102,7 +102,7 @@ impl SegmenterBuilder {
     /// use easy_segmenter::SegmenterBuilder;
     ///
     /// let seg = SegmenterBuilder::new()
-    ///     .ex_periods(["\n"])
+    ///     .ex_delimiters(["\n"])
     ///     .build()
     ///     .unwrap();
     /// let text = "これはペンです\nそれはマーカーです\n";
@@ -110,15 +110,15 @@ impl SegmenterBuilder {
     /// let expected = vec!["これはペンです", "それはマーカーです"];
     /// assert_eq!(sentences, expected);
     /// ```
-    pub fn ex_periods<I, P>(mut self, periods: I) -> Self
+    pub fn ex_delimiters<I, P>(mut self, delimiters: I) -> Self
     where
         I: IntoIterator<Item = P>,
         P: AsRef<str>,
     {
-        periods
+        delimiters
             .into_iter()
             .map(|p| p.as_ref().to_string())
-            .for_each(|p| self.ex_periods.push(p));
+            .for_each(|p| self.ex_delimiters.push(p));
         self
     }
 
@@ -133,7 +133,7 @@ impl SegmenterBuilder {
     /// use easy_segmenter::SegmenterBuilder;
     ///
     /// let seg = SegmenterBuilder::new()
-    ///     .in_periods(["。"])
+    ///     .in_delimiters(["。"])
     ///     .parentheses([('「', '」')])
     ///     .build()
     ///     .unwrap();
@@ -160,7 +160,7 @@ impl SegmenterBuilder {
     /// use easy_segmenter::SegmenterBuilder;
     ///
     /// let seg = SegmenterBuilder::new()
-    ///     .in_periods(["。"])
+    ///     .in_delimiters(["。"])
     ///     .no_break_words(["モーニング娘。"])
     ///     .build()
     ///     .unwrap();
@@ -194,7 +194,7 @@ impl SegmenterBuilder {
     /// use easy_segmenter::SegmenterBuilder;
     ///
     /// let seg = SegmenterBuilder::new()
-    ///     .in_periods(["．"])
+    ///     .in_delimiters(["．"])
     ///     .no_break_regex(Regex::new(r"\d(．)\d").unwrap())
     ///     .build()
     ///     .unwrap();

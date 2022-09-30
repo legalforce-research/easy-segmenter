@@ -2,7 +2,10 @@ use super::*;
 
 #[test]
 fn test_simple_1() {
-    let seg = SegmenterBuilder::new().in_periods(["。"]).build().unwrap();
+    let seg = SegmenterBuilder::new()
+        .in_delimiters(["。"])
+        .build()
+        .unwrap();
     let text = "これはペンです。それはマーカーです。";
     let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
     let expected = vec!["これはペンです。", "それはマーカーです。"];
@@ -12,7 +15,7 @@ fn test_simple_1() {
 #[test]
 fn test_simple_2() {
     let seg = SegmenterBuilder::new()
-        .in_periods(["。", "？"])
+        .in_delimiters(["。", "？"])
         .build()
         .unwrap();
     let text = "それは何ですか？ペンです。";
@@ -24,8 +27,8 @@ fn test_simple_2() {
 #[test]
 fn test_simple_3() {
     let seg = SegmenterBuilder::new()
-        .in_periods(["！"])
-        .ex_periods(["\n"])
+        .in_delimiters(["！"])
+        .ex_delimiters(["\n"])
         .build()
         .unwrap();
     let text = "良かったね\nすごい！";
@@ -37,7 +40,7 @@ fn test_simple_3() {
 #[test]
 fn test_simple_4() {
     let seg = SegmenterBuilder::new()
-        .ex_periods(["\n", "</br>"])
+        .ex_delimiters(["\n", "</br>"])
         .build()
         .unwrap();
     let text = "良かったね</br>すごい\n";
@@ -47,10 +50,10 @@ fn test_simple_4() {
 }
 
 #[test]
-fn test_duplicate_periods() {
+fn test_duplicate_delimiters() {
     let seg = SegmenterBuilder::new()
-        .in_periods(["。", "。。。"])
-        .ex_periods(["\n", "\r\n", "\r"])
+        .in_delimiters(["。", "。。。"])
+        .ex_delimiters(["\n", "\r\n", "\r"])
         .build()
         .unwrap();
     let text = "なるほど。。。その通りですね\r\n";
@@ -62,7 +65,7 @@ fn test_duplicate_periods() {
 #[test]
 fn test_listing() {
     let seg = SegmenterBuilder::new()
-        .ex_periods(["\n", "\n・"])
+        .ex_delimiters(["\n", "\n・"])
         .build()
         .unwrap();
     let text = "買うもの\n・ご飯\n・卵\n・醤油\n計３点";
@@ -74,7 +77,7 @@ fn test_listing() {
 #[test]
 fn test_quote_1() {
     let seg = SegmenterBuilder::new()
-        .in_periods(["。"])
+        .in_delimiters(["。"])
         .parentheses([('「', '」')])
         .build()
         .unwrap();
@@ -87,7 +90,7 @@ fn test_quote_1() {
 #[test]
 fn test_quote_2() {
     let seg = SegmenterBuilder::new()
-        .in_periods(["。"])
+        .in_delimiters(["。"])
         .parentheses([('（', '）')])
         .build()
         .unwrap();
@@ -100,7 +103,7 @@ fn test_quote_2() {
 #[test]
 fn test_quote_3() {
     let seg = SegmenterBuilder::new()
-        .in_periods(["。"])
+        .in_delimiters(["。"])
         .parentheses([('「', '」'), ('（', '）')])
         .build()
         .unwrap();
@@ -113,7 +116,7 @@ fn test_quote_3() {
 #[test]
 fn test_quote_4() {
     let seg = SegmenterBuilder::new()
-        .in_periods(["。"])
+        .in_delimiters(["。"])
         .parentheses([('「', '」'), ('（', '）')])
         .build()
         .unwrap();
@@ -126,7 +129,7 @@ fn test_quote_4() {
 #[test]
 fn test_word_1() {
     let seg = SegmenterBuilder::new()
-        .in_periods(["。"])
+        .in_delimiters(["。"])
         .no_break_words(["モーニング娘。"])
         .build()
         .unwrap();
@@ -139,7 +142,7 @@ fn test_word_1() {
 #[test]
 fn test_regex_1() {
     let seg = SegmenterBuilder::new()
-        .in_periods(["．"])
+        .in_delimiters(["．"])
         .no_break_regex(Regex::new(r"\d(．)\d").unwrap())
         .build()
         .unwrap();
@@ -152,7 +155,7 @@ fn test_regex_1() {
 #[test]
 fn test_regex_2() {
     let seg = SegmenterBuilder::new()
-        .in_periods(["。"])
+        .in_delimiters(["。"])
         .no_break_regex(Regex::new(r"(。{2,})。").unwrap())
         .build()
         .unwrap();
@@ -163,8 +166,11 @@ fn test_regex_2() {
 }
 
 #[test]
-fn test_no_last_period() {
-    let seg = SegmenterBuilder::new().in_periods(["。"]).build().unwrap();
+fn test_no_last_delimiter() {
+    let seg = SegmenterBuilder::new()
+        .in_delimiters(["。"])
+        .build()
+        .unwrap();
     let text = "これはペンです。それはマーカーです";
     let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
     let expected = vec!["これはペンです。", "それはマーカーです"];
@@ -173,7 +179,10 @@ fn test_no_last_period() {
 
 #[test]
 fn test_empty_text() {
-    let seg = SegmenterBuilder::new().in_periods(["。"]).build().unwrap();
+    let seg = SegmenterBuilder::new()
+        .in_delimiters(["。"])
+        .build()
+        .unwrap();
     let text = "";
     let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
     assert!(sentences.is_empty());
@@ -181,7 +190,10 @@ fn test_empty_text() {
 
 #[test]
 fn test_empty_lines() {
-    let seg = SegmenterBuilder::new().ex_periods(["\n"]).build().unwrap();
+    let seg = SegmenterBuilder::new()
+        .ex_delimiters(["\n"])
+        .build()
+        .unwrap();
     let text = "これはペンです\n\n\nそれはマーカーです";
     let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
     let expected = vec!["これはペンです", "それはマーカーです"];
