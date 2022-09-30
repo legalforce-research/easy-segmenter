@@ -7,8 +7,8 @@ fn main() {
     std::io::stdin().read_to_string(&mut text).unwrap();
 
     let seg = SegmenterBuilder::new()
-        .in_periods(["。", "?", "!"])
-        .ex_periods(["\n", "\r\n", "\r"])
+        .in_delimiters(["。", "?", "!"])
+        .ex_delimiters(["\n", "\r\n", "\r"])
         .parentheses([('(', ')'), ('「', '」')])
         .build()
         .unwrap();
