@@ -13,7 +13,7 @@ use crate::template;
 
 /// Segmenter implementation.
 ///
-/// This struct provides APIs to build a segmenter from pre-defined segmentation rules 
+/// This struct provides APIs to build a segmenter from pre-defined segmentation rules
 /// and segment a text into sentences.
 /// If you want to customize the segmentation rules, use [`SegmenterBuilder`].
 ///
