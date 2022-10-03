@@ -91,7 +91,7 @@
 //!
 //! Quoted sentences will not be segmented.
 //! You can define pairs of characters to specify quotations such as brackets and
-parentheses.
+//! parentheses.
 //!
 //! ```rust
 //! let seg = easy_segmenter::SegmenterBuilder::new()
