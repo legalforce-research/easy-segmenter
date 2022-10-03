@@ -5,7 +5,7 @@ use crate::errors::{EasySegmenterError, Result};
 use crate::matcher::{DelimiterMatcher, QuoteMatcher, WordMatcher};
 use crate::segmenter::Segmenter;
 
-/// The default value of the maximum nesting level for quotations.
+/// The default value of the maximum nested level of quotations.
 pub const DEFAULT_MAX_QUOTE_LEVEL: usize = 3;
 
 /// Builder of [`Segmenter`] to define segmentation rules.
@@ -122,7 +122,7 @@ impl SegmenterBuilder {
         self
     }
 
-    /// Adds character pairs to specify the start and end of a quotation.
+    /// Adds pairs of characters to specify quotations.
     /// Sentences within a quotation will not be broken.
     ///
     /// `quotes` must not have duplicate entries.
@@ -213,7 +213,7 @@ impl SegmenterBuilder {
         self
     }
 
-    /// Sets the maximum nesting level for quotations.
+    /// Sets the maximum nested level of quotations.
     /// The default value is [`DEFAULT_MAX_QUOTE_LEVEL`].
     ///
     /// A smaller value will speed up segmentation but
