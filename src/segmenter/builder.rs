@@ -5,7 +5,7 @@ use crate::errors::{EasySegmenterError, Result};
 use crate::matcher::{DelimiterMatcher, QuoteMatcher, WordMatcher};
 use crate::segmenter::Segmenter;
 
-/// The default value of the maximum level of nested parentheses handled as quotations.
+/// The default value of the maximum nesting level for quotations.
 pub const DEFAULT_MAX_QUOTE_LEVEL: usize = 3;
 
 /// Builder of [`Segmenter`] to define segmentation rules.
@@ -20,7 +20,7 @@ pub const DEFAULT_MAX_QUOTE_LEVEL: usize = 3;
 pub struct SegmenterBuilder {
     in_delimiters: Vec<String>,
     ex_delimiters: Vec<String>,
-    parentheses: Vec<(char, char)>,
+    quotes: Vec<(char, char)>,
     words: Vec<String>,
     regexes: Vec<Regex>,
     max_quote_level: usize,
@@ -32,7 +32,7 @@ impl SegmenterBuilder {
         Self {
             in_delimiters: vec![],
             ex_delimiters: vec![],
-            parentheses: vec![],
+            quotes: vec![],
             words: vec![],
             regexes: vec![],
             max_quote_level: DEFAULT_MAX_QUOTE_LEVEL,
@@ -47,10 +47,10 @@ impl SegmenterBuilder {
             ));
         }
         let delimiter_matcher = DelimiterMatcher::new(&self.in_delimiters, &self.ex_delimiters);
-        let quote_matcher = if self.parentheses.is_empty() {
+        let quote_matcher = if self.quotes.is_empty() {
             None
         } else {
-            Some(QuoteMatcher::new(&self.parentheses)?)
+            Some(QuoteMatcher::new(&self.quotes)?)
         };
         let word_matcher = if self.words.is_empty() {
             None
@@ -122,10 +122,10 @@ impl SegmenterBuilder {
         self
     }
 
-    /// Adds parentheses to specify quotations.
+    /// Adds character pairs to specify the start and end of a quotation.
     /// Sentences within a quotation will not be broken.
     ///
-    /// `parentheses` must not have duplicate entries.
+    /// `quotes` must not have duplicate entries.
     ///
     /// # Examples
     ///
@@ -134,7 +134,7 @@ impl SegmenterBuilder {
     ///
     /// let seg = SegmenterBuilder::new()
     ///     .in_delimiters(["。"])
-    ///     .parentheses([('「', '」')])
+    ///     .quotes([('「', '」')])
     ///     .build()
     ///     .unwrap();
     /// let text = "私は「はい。そうです。」と答えた。";
@@ -142,13 +142,11 @@ impl SegmenterBuilder {
     /// let expected = vec!["私は「はい。そうです。」と答えた。"];
     /// assert_eq!(sentences, expected);
     /// ```
-    pub fn parentheses<I>(mut self, parentheses: I) -> Self
+    pub fn quotes<I>(mut self, quotes: I) -> Self
     where
         I: IntoIterator<Item = (char, char)>,
     {
-        parentheses
-            .into_iter()
-            .for_each(|p| self.parentheses.push(p));
+        quotes.into_iter().for_each(|p| self.quotes.push(p));
         self
     }
 
@@ -215,11 +213,11 @@ impl SegmenterBuilder {
         self
     }
 
-    /// Sets the maximum level of nested parentheses handled as quotations.
+    /// Sets the maximum nesting level for quotations.
     /// The default value is [`DEFAULT_MAX_QUOTE_LEVEL`].
     ///
     /// A smaller value will speed up segmentation but
-    /// make it more susceptible to errant parenthesis pairs.
+    /// make it more susceptible to errant pairs of quotation marks.
     ///
     /// # Errors
     ///

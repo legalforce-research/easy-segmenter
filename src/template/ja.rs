@@ -45,7 +45,7 @@ pub fn ex_delimiters() -> Vec<&'static str> {
     vec!["\n", "\r\n", "\r"]
 }
 
-/// Creates a list of parentheses for quoatations.
+/// Creates a list of quotes.
 ///
 /// See the source code for the specific definition.
 ///
@@ -56,7 +56,7 @@ pub fn ex_delimiters() -> Vec<&'static str> {
 ///
 /// let seg = SegmenterBuilder::new()
 ///     .in_delimiters(template::ja::in_delimiters())
-///     .parentheses(template::ja::parentheses())
+///     .quotes(template::ja::quotes())
 ///     .build()
 ///     .unwrap();
 /// let text = "私は「はい。そうです。」と答えた。";
@@ -64,7 +64,7 @@ pub fn ex_delimiters() -> Vec<&'static str> {
 /// let expected = vec!["私は「はい。そうです。」と答えた。"];
 /// assert_eq!(sentences, expected);
 /// ```
-pub fn parentheses() -> Vec<(char, char)> {
+pub fn quotes() -> Vec<(char, char)> {
     vec![
         ('(', ')'),
         ('[', ']'),

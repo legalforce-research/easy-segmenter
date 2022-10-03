@@ -69,9 +69,9 @@ pub struct QuoteMatcher {
 }
 
 impl QuoteMatcher {
-    pub fn new(parentheses: &[(char, char)]) -> Result<Self> {
+    pub fn new(quotes: &[(char, char)]) -> Result<Self> {
         let mut patterns = vec![];
-        for &(p, q) in parentheses {
+        for &(p, q) in quotes {
             patterns.push(p.to_string());
             patterns.push(q.to_string());
         }
@@ -144,8 +144,8 @@ mod tests {
 
     #[test]
     fn test_quote_1() {
-        let parentheses = vec![('「', '」'), ('（', '）')];
-        let matcher = QuoteMatcher::new(&parentheses).unwrap();
+        let quotes = vec![('「', '」'), ('（', '）')];
+        let matcher = QuoteMatcher::new(&quotes).unwrap();
         let matches: Vec<_> = matcher.iter("「」（）").collect();
         let expected = vec![
             QuoteMatch {
@@ -178,7 +178,7 @@ mod tests {
 
     #[test]
     fn test_quote_2() {
-        let parentheses = vec![('「', '」'), ('（', '」')];
-        assert!(QuoteMatcher::new(&parentheses).is_err());
+        let quotes = vec![('「', '」'), ('（', '」')];
+        assert!(QuoteMatcher::new(&quotes).is_err());
     }
 }

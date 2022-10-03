@@ -47,12 +47,12 @@ fn add_segment_benches(group: &mut BenchmarkGroup<WallTime>, text: &str) {
         });
     });
 
-    group.bench_function("with-parentheses", |b| {
+    group.bench_function("with-quotes", |b| {
         b.iter(|| {
             let seg = SegmenterBuilder::new()
                 .in_delimiters(["。", "？", "！"])
                 .ex_delimiters(["\n", "\r\n", "\r"])
-                .parentheses([('(', ')'), ('「', '」')])
+                .quotes([('(', ')'), ('「', '」')])
                 .build()
                 .unwrap();
             let dummy = seg.segment(&text).count();
