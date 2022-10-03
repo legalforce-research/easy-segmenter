@@ -78,7 +78,7 @@ fn test_listing() {
 fn test_quote_1() {
     let seg = SegmenterBuilder::new()
         .in_delimiters(["。"])
-        .parentheses([('「', '」')])
+        .quotes([('「', '」')])
         .build()
         .unwrap();
     let text = "私は「はい。そうです。」と答えた。";
@@ -91,7 +91,7 @@ fn test_quote_1() {
 fn test_quote_2() {
     let seg = SegmenterBuilder::new()
         .in_delimiters(["。"])
-        .parentheses([('（', '）')])
+        .quotes([('（', '）')])
         .build()
         .unwrap();
     let text = "私は「はい。そうです。」と答えた。";
@@ -104,7 +104,7 @@ fn test_quote_2() {
 fn test_quote_3() {
     let seg = SegmenterBuilder::new()
         .in_delimiters(["。"])
-        .parentheses([('「', '」'), ('（', '）')])
+        .quotes([('「', '」'), ('（', '）')])
         .build()
         .unwrap();
     let text = "私は「はい。そうです。（嘘だけど。）」と答えた。";
@@ -117,7 +117,7 @@ fn test_quote_3() {
 fn test_quote_4() {
     let seg = SegmenterBuilder::new()
         .in_delimiters(["。"])
-        .parentheses([('「', '」'), ('（', '）')])
+        .quotes([('「', '」'), ('（', '）')])
         .build()
         .unwrap();
     let text = "私は「はい。そうです。（嘘だけど。）と答えた。";

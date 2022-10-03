@@ -90,12 +90,13 @@
 //! #### 1. Quotation
 //!
 //! Quoted sentences will not be segmented.
-//! You can define pairs of parentheses to specify quotations.
+//! You can define pairs of characters to specify quotations such as brackets and
+//! parentheses.
 //!
 //! ```rust
 //! let seg = easy_segmenter::SegmenterBuilder::new()
 //!     .in_delimiters(["。"])
-//!     .parentheses([('「', '」')])
+//!     .quotes([('「', '」')])
 //!     .build()
 //!     .unwrap();
 //! let text = "私は「はい。そうです。」と答えた。";

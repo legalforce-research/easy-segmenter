@@ -13,7 +13,7 @@ fn main() {
         let seg = SegmenterBuilder::new()
             .in_delimiters(["。", "?", "!"])
             .ex_delimiters(["\n", "\r\n", "\r"])
-            .parentheses([('(', ')'), ('「', '」')])
+            .quotes([('(', ')'), ('「', '」')])
             .build()
             .unwrap();
         num_sents += seg.segment(&text).count();

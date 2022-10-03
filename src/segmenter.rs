@@ -66,7 +66,7 @@ impl Segmenter {
         SegmenterBuilder::new()
             .in_delimiters(template::ja::in_delimiters())
             .ex_delimiters(template::ja::ex_delimiters())
-            .parentheses(template::ja::parentheses())
+            .quotes(template::ja::quotes())
             .no_break_regex(template::ja::decimal_point())
             .build()
             .unwrap()
