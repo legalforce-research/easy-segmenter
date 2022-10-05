@@ -10,9 +10,5 @@ aho-corasick = "0.7"
 regex = "1"
 
 [workspace]
-members = [
-    "bench",
-]
-exclude = [
-    "comparison",
-]
+members = ["bench"]
+exclude = ["comparison"]
