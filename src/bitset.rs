@@ -11,7 +11,6 @@ impl Bitset {
         }
     }
 
-    #[allow(clippy::missing_const_for_fn)]
     #[inline(always)]
     pub fn get(&self, i: usize) -> bool {
         let (block, shift) = (i / 64, i % 64);
