@@ -1,0 +1,25 @@
+name: format-toml
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  format-toml:
+    name: Format TOML files with taplo
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+      - uses: docker://tamasfe/taplo:0.7.0
+        with:
+          args: fmt
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Apply taplo format changes
