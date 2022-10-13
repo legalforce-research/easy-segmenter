@@ -4,9 +4,6 @@ on:
   pull_request:
     branches: [ main ]
 
-env:
-  CARGO_TERM_COLOR: always
-
 jobs:
   format-toml:
     name: Format TOML files with taplo
