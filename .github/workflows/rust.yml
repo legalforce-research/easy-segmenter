@@ -57,7 +57,7 @@ jobs:
           args: --no-deps
 
   lint-toml:
-    name: Check TOML format with Taplo
+    name: Check TOML format
     runs-on: ubuntu-latest
     container: tamasfe/taplo:0.7.0
     steps:
