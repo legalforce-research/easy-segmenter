@@ -55,3 +55,12 @@ jobs:
         with:
           command: doc
           args: --no-deps
+
+  lint-toml:
+    name: Check TOML format
+    runs-on: ubuntu-latest
+    container: tamasfe/taplo:0.7.0
+    steps:
+      - uses: actions/checkout@v3
+      - name: lint
+        run: taplo fmt --check
