@@ -18,7 +18,6 @@ jobs:
         rust:
           - stable
           - beta
-          - nightly
     steps:
       - uses: actions/checkout@v2
       - name: Install latest stable
@@ -47,14 +46,21 @@ jobs:
 
       - name: Run cargo test
         uses: actions-rs/cargo@v1
-        continue-on-error: ${{ matrix.rust == 'nightly' }}
         with:
           command: test
           args: --release --all-features
           
       - name: Run cargo doc
         uses: actions-rs/cargo@v1
-        continue-on-error: ${{ matrix.rust == 'nightly' }}
         with:
           command: doc
           args: --no-deps
+
+  lint-toml:
+    name: Check TOML format
+    runs-on: ubuntu-latest
+    container: tamasfe/taplo:0.7.0
+    steps:
+      - uses: actions/checkout@v3
+      - name: lint
+        run: taplo fmt --check
