@@ -4,8 +4,9 @@ use serde_derive::Deserialize;
 
 use crate::errors::Result;
 
+/// Configure of segmentation rules.
 #[derive(Deserialize, Debug, PartialEq, Eq)]
-struct RuleSet {
+struct RuleConfig {
     in_delimiters: Option<Vec<String>>,
     ex_delimiters: Option<Vec<String>>,
     quotes: Option<Vec<String>>,
@@ -13,8 +14,8 @@ struct RuleSet {
     regex: Option<BTreeMap<String, String>>,
 }
 
-impl RuleSet {
-    /// Deserializes a string in the TOML format into a [`RuleSet`].
+impl RuleConfig {
+    /// Deserializes a string in the TOML format into a [`RuleConfig`].
     ///
     /// # Format
     ///
@@ -28,9 +29,9 @@ impl RuleSet {
     /// dot_sequence = '(。{2,})。'
     /// ```
     ///
-    /// ## The `in_delimiters` field
-    ///
     /// # Errors
+    ///
+    /// [`toml::de::Error`] will be reported if the deserialization fails.
     pub fn from_toml_str<S>(toml_str: S) -> Result<Self>
     where
         S: AsRef<str>,
@@ -50,8 +51,8 @@ mod tests {
             ex_delimiters = ["\n", "\r\n", "\r"]
         "#;
 
-        let rule_set = RuleSet::from_toml_str(toml_str).unwrap();
-        let expected = RuleSet {
+        let rule_set = RuleConfig::from_toml_str(toml_str).unwrap();
+        let expected = RuleConfig {
             in_delimiters: Some(vec!["。".to_string()]),
             ex_delimiters: Some(vec!["\n".to_string(), "\r\n".to_string(), "\r".to_string()]),
             quotes: None,
@@ -73,8 +74,8 @@ mod tests {
             dot_sequence = '(。{2,})。'
         "#;
 
-        let rule_set = RuleSet::from_toml_str(toml_str).unwrap();
-        let expected = RuleSet {
+        let rule_set = RuleConfig::from_toml_str(toml_str).unwrap();
+        let expected = RuleConfig {
             in_delimiters: Some(vec!["。".to_string(), "．".to_string()]),
             ex_delimiters: Some(vec!["\n".to_string(), "\r\n".to_string(), "\r".to_string()]),
             quotes: Some(vec!["「」".to_string(), "（）".to_string()]),
@@ -91,8 +92,8 @@ mod tests {
     fn test_from_toml_str_empty_members() {
         let toml_str = "";
 
-        let rule_set = RuleSet::from_toml_str(toml_str).unwrap();
-        let expected = RuleSet {
+        let rule_set = RuleConfig::from_toml_str(toml_str).unwrap();
+        let expected = RuleConfig {
             in_delimiters: None,
             ex_delimiters: None,
             quotes: None,
@@ -108,8 +109,8 @@ mod tests {
             in_delimiters = ["。"]
             out_delimiters = ["\n"] # will be ignored
         "#;
-        let rule_set = RuleSet::from_toml_str(toml_str).unwrap();
-        let expected = RuleSet {
+        let rule_set = RuleConfig::from_toml_str(toml_str).unwrap();
+        let expected = RuleConfig {
             in_delimiters: Some(vec!["。".to_string()]),
             ex_delimiters: None,
             quotes: None,
@@ -124,6 +125,6 @@ mod tests {
         let toml_str = r#"
             in_delimiters = ["。"
         "#;
-        assert!(RuleSet::from_toml_str(toml_str).is_err());
+        assert!(RuleConfig::from_toml_str(toml_str).is_err());
     }
 }

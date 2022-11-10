@@ -200,7 +200,7 @@ pub mod template;
 mod bitset;
 mod matcher;
 
-// TODO: Remove it when the module is used.
+// TODO: Make it pub when it is ready.
 #[allow(dead_code)]
 mod rule;
 
