@@ -5,7 +5,8 @@ use serde_derive::Deserialize;
 use crate::errors::Result;
 
 /// Configure of segmentation rules.
-#[derive(Deserialize, Debug, PartialEq, Eq)]
+#[derive(Deserialize, Debug, PartialEq, Eq, Default)]
+#[serde(default)]
 struct RuleConfig {
     in_delimiters: Vec<String>,
     ex_delimiters: Vec<String>,
@@ -49,9 +50,6 @@ mod tests {
         let toml_str = r#"
             in_delimiters = ["。"]
             ex_delimiters = ["\n", "\r\n", "\r"]
-            quotes = []
-            words = []
-            [regex]
         "#;
 
         let rule_set = RuleConfig::from_toml_str(toml_str).unwrap();
@@ -93,13 +91,7 @@ mod tests {
 
     #[test]
     fn test_from_toml_str_empty_members() {
-        let toml_str = r#"
-            in_delimiters = []
-            ex_delimiters = []
-            quotes = []
-            words = []
-            [regex]
-        "#;
+        let toml_str = "";
 
         let rule_set = RuleConfig::from_toml_str(toml_str).unwrap();
         let expected = RuleConfig {
@@ -116,11 +108,7 @@ mod tests {
     fn test_from_toml_str_undefined_member() {
         let toml_str = r#"
             in_delimiters = ["。"]
-            ex_delimiters = []
             out_delimiters = ["\n"] # will be ignored
-            quotes = []
-            words = []
-            [regex]
         "#;
         let rule_set = RuleConfig::from_toml_str(toml_str).unwrap();
         let expected = RuleConfig {
@@ -131,15 +119,6 @@ mod tests {
             regex: BTreeMap::new(),
         };
         assert_eq!(rule_set, expected);
-    }
-
-    #[test]
-    fn test_from_toml_str_insufficient_members() {
-        let toml_str = r#"
-            in_delimiters = ["。"]
-            ex_delimiters = ["\n"]
-        "#;
-        assert!(RuleConfig::from_toml_str(toml_str).is_err());
     }
 
     #[test]
