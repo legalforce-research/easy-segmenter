@@ -200,4 +200,8 @@ pub mod template;
 mod bitset;
 mod matcher;
 
+// TODO: Make it pub when it is ready.
+#[allow(dead_code)]
+mod rule;
+
 pub use segmenter::{Segmenter, SegmenterBuilder};
