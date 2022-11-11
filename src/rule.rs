@@ -7,11 +7,11 @@ use crate::errors::Result;
 /// Configure of segmentation rules.
 #[derive(Deserialize, Debug, PartialEq, Eq)]
 struct RuleConfig {
-    in_delimiters: Option<Vec<String>>,
-    ex_delimiters: Option<Vec<String>>,
-    quotes: Option<Vec<String>>,
-    words: Option<Vec<String>>,
-    regex: Option<BTreeMap<String, String>>,
+    in_delimiters: Vec<String>,
+    ex_delimiters: Vec<String>,
+    quotes: Vec<String>,
+    words: Vec<String>,
+    regex: BTreeMap<String, String>,
 }
 
 impl RuleConfig {
@@ -49,15 +49,18 @@ mod tests {
         let toml_str = r#"
             in_delimiters = ["。"]
             ex_delimiters = ["\n", "\r\n", "\r"]
+            quotes = []
+            words = []
+            [regex]
         "#;
 
         let rule_set = RuleConfig::from_toml_str(toml_str).unwrap();
         let expected = RuleConfig {
-            in_delimiters: Some(vec!["。".to_string()]),
-            ex_delimiters: Some(vec!["\n".to_string(), "\r\n".to_string(), "\r".to_string()]),
-            quotes: None,
-            words: None,
-            regex: None,
+            in_delimiters: vec!["。".to_string()],
+            ex_delimiters: vec!["\n".to_string(), "\r\n".to_string(), "\r".to_string()],
+            quotes: vec![],
+            words: vec![],
+            regex: BTreeMap::new(),
         };
         assert_eq!(rule_set, expected);
     }
@@ -76,29 +79,35 @@ mod tests {
 
         let rule_set = RuleConfig::from_toml_str(toml_str).unwrap();
         let expected = RuleConfig {
-            in_delimiters: Some(vec!["。".to_string(), "．".to_string()]),
-            ex_delimiters: Some(vec!["\n".to_string(), "\r\n".to_string(), "\r".to_string()]),
-            quotes: Some(vec!["「」".to_string(), "（）".to_string()]),
-            words: Some(vec!["モーニング娘。".to_string()]),
-            regex: Some(BTreeMap::from([
+            in_delimiters: vec!["。".to_string(), "．".to_string()],
+            ex_delimiters: vec!["\n".to_string(), "\r\n".to_string(), "\r".to_string()],
+            quotes: vec!["「」".to_string(), "（）".to_string()],
+            words: vec!["モーニング娘。".to_string()],
+            regex: BTreeMap::from([
                 ("decimal_point".to_string(), r"\d(．)\d".to_string()),
                 ("dot_sequence".to_string(), r"(。{2,})。".to_string()),
-            ])),
+            ]),
         };
         assert_eq!(rule_set, expected);
     }
 
     #[test]
     fn test_from_toml_str_empty_members() {
-        let toml_str = "";
+        let toml_str = r#"
+            in_delimiters = []
+            ex_delimiters = []
+            quotes = []
+            words = []
+            [regex]
+        "#;
 
         let rule_set = RuleConfig::from_toml_str(toml_str).unwrap();
         let expected = RuleConfig {
-            in_delimiters: None,
-            ex_delimiters: None,
-            quotes: None,
-            words: None,
-            regex: None,
+            in_delimiters: vec![],
+            ex_delimiters: vec![],
+            quotes: vec![],
+            words: vec![],
+            regex: BTreeMap::new(),
         };
         assert_eq!(rule_set, expected);
     }
@@ -107,17 +116,30 @@ mod tests {
     fn test_from_toml_str_undefined_member() {
         let toml_str = r#"
             in_delimiters = ["。"]
+            ex_delimiters = []
             out_delimiters = ["\n"] # will be ignored
+            quotes = []
+            words = []
+            [regex]
         "#;
         let rule_set = RuleConfig::from_toml_str(toml_str).unwrap();
         let expected = RuleConfig {
-            in_delimiters: Some(vec!["。".to_string()]),
-            ex_delimiters: None,
-            quotes: None,
-            words: None,
-            regex: None,
+            in_delimiters: vec!["。".to_string()],
+            ex_delimiters: vec![],
+            quotes: vec![],
+            words: vec![],
+            regex: BTreeMap::new(),
         };
         assert_eq!(rule_set, expected);
+    }
+
+    #[test]
+    fn test_from_toml_str_insufficient_members() {
+        let toml_str = r#"
+            in_delimiters = ["。"]
+            ex_delimiters = ["\n"]
+        "#;
+        assert!(RuleConfig::from_toml_str(toml_str).is_err());
     }
 
     #[test]
