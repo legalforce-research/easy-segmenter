@@ -2,28 +2,6 @@
 //!
 //! easy-segmenter is a fast and customizable rule-based sentence segmenter library for Rust.
 //!
-//! ## Getting started
-//!
-//! ```rust
-//! let seg = easy_segmenter::Segmenter::with_template_ja_config();
-//!
-//! let text = "円周率はいくつですか？３．１４です。なるほど\n以前に「３の方が良いのでは？」と聞いた気がします";
-//! let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
-//! let expected = vec![
-//!     "円周率はいくつですか？",
-//!     "３．１４です。",
-//!     "なるほど",
-//!     "以前に「３の方が良いのでは？」と聞いた気がします",
-//! ];
-//! assert_eq!(sentences, expected);
-//! ```
-//!
-//! `with_template_ja_config()` creates a segmenter with basic segmentation rules that
-//! are enhanced from the [Golden Rules](https://github.com/diasks2/pragmatic_segmenter#golden-rules-japanese) in [Pragmatic Segmenter](https://github.com/diasks2/pragmatic_segmenter).
-//! See the contents of [`template`] for the definition.
-//!
-//! Also, you can manually define segmentation rules as follows.
-//!
 //! ## How to customize
 //!
 //! `easy_segmenter::Segmenter` does not hardcode any segmentation rules and
@@ -195,7 +173,6 @@
 
 pub mod errors;
 pub mod segmenter;
-pub mod template;
 
 mod bitset;
 mod matcher;

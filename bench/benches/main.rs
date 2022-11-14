@@ -6,7 +6,7 @@ use criterion::{
     criterion_group, criterion_main, measurement::WallTime, BenchmarkGroup, Criterion, SamplingMode,
 };
 
-use easy_segmenter::{Segmenter, SegmenterBuilder};
+use easy_segmenter::SegmenterBuilder;
 
 const SAMPLE_SIZE: usize = 10;
 const WARM_UP_TIME: Duration = Duration::from_secs(5);
@@ -68,14 +68,6 @@ fn add_segment_benches(group: &mut BenchmarkGroup<WallTime>, text: &str) {
                 .no_break_regex(regex::Regex::new(r"(。{2,})。").unwrap())
                 .build()
                 .unwrap();
-            let dummy = seg.segment(&text).count();
-            assert_ne!(dummy, 0);
-        });
-    });
-
-    group.bench_function("with-template-ja", |b| {
-        b.iter(|| {
-            let seg = Segmenter::with_template_ja_config();
             let dummy = seg.segment(&text).count();
             assert_ne!(dummy, 0);
         });

@@ -9,31 +9,12 @@ use regex::Regex;
 
 use crate::bitset::Bitset;
 use crate::matcher::{DelimiterMatcher, QuoteMatcher, WordMatcher};
-use crate::template;
 
 /// Segmenter implementation.
 ///
 /// This struct provides APIs to build a segmenter from pre-defined segmentation rules
 /// and segment a text into sentences.
 /// If you want to customize the segmentation rules, use [`SegmenterBuilder`].
-///
-/// # Examples
-///
-/// ```rust
-/// use easy_segmenter::Segmenter;
-///
-/// let seg = Segmenter::with_template_ja_config();
-/// let text = "円周率はいくつですか？３．１４です。なるほど、\
-///     以前に「３の方が良いのでは？」と聞いた気がしますが\n今も３．１４なんですね";
-/// let sentences: Vec<_> = seg.segment(text).map(|(i, j)| &text[i..j]).collect();
-/// let expected = vec![
-///     "円周率はいくつですか？",
-///     "３．１４です。",
-///     "なるほど、以前に「３の方が良いのでは？」と聞いた気がしますが",
-///     "今も３．１４なんですね",
-/// ];
-/// assert_eq!(sentences, expected);
-/// ```
 pub struct Segmenter {
     // Breakers
     delimiter_matcher: DelimiterMatcher,
@@ -59,17 +40,6 @@ impl Segmenter {
             regex_matchers,
             max_quote_level,
         }
-    }
-
-    /// Creates an instance with basic segmentation rules defined in [`template::ja`].
-    pub fn with_template_ja_config() -> Self {
-        SegmenterBuilder::new()
-            .in_delimiters(template::ja::in_delimiters())
-            .ex_delimiters(template::ja::ex_delimiters())
-            .quotes(template::ja::quotes())
-            .no_break_regex(template::ja::decimal_point())
-            .build()
-            .unwrap()
     }
 
     /// Segments an input text into sentences, returning byte-position ranges.
